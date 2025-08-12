@@ -1,302 +1,121 @@
-import { router } from 'expo-router';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { router, useNavigation } from 'expo-router';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
 import { signOutUser } from '../../utils/auth';
 import { clearRole } from '../../utils/storage';
 
-export default function OwnerDashboard() {
+export default function ConsumerDashboard() {
   const handleSignOut = async () => {
-    await signOutUser();
-    await clearRole();
-    router.replace('/');
+    try {
+      await signOutUser();
+      await clearRole();
+      router.replace('/'); // Redirect to home/login page
+    } catch (error) {
+      console.error('Sign-out error:', error);
+      Alert.alert('Error', 'Unable to sign out. Please try again.');
+    }
   };
 
-  const handleGoBack = () => {
-    router.back(); // 👈 This takes user back to previous screen
+  const handleBack = () => {
+    try {
+      router.back();
+    } catch (error) {
+      // If no previous screen exists, go to home
+      router.replace('/');
+    }
   };
 
-  const todayStats = {
-    orders: 45,
-    revenue: 5400,
-    pendingOrders: 12,
-    activeCustomers: 156,
-  };
-
-  const recentOrders = [
-    { id: 1, customer: 'Suraj Kokate', items: 'Lunch + Dinner', amount: 240, status: 'Delivered' },
-    { id: 2, customer: 'Ashok kamble', items: 'Lunch Only', amount: 120, status: 'Preparing' },
-    { id: 3, customer: 'Mahesh Makane', items: 'Dinner Only', amount: 140, status: 'Pending' },
-    { id: 4, customer: 'Shraddha Nevase', items: 'Lunch + Dinner', amount: 240, status: 'Delivered' },
-    { id: 5, customer: 'Ketan Sir', items: 'Lunch Only', amount: 120, status: 'Preparing' },
-    { id: 6, customer: 'Ajit Sir', items: 'Dinner Only', amount: 140, status: 'Pending' },
+  const messServices = [
+    { id: 1, name: 'Famous Mess', price: 120, rating: 4.5, distance: 0.5, location: 'Katraj Chowk' },
+    { id: 2, name: 'Kokate Tiffin', price: 100, rating: 4.2, distance: 1.2, location: 'Sighgad Campus' },
+    { id: 3, name: 'Home Food', price: 140, rating: 4.8, distance: 0.8, location: 'Swargate' },
+    { id: 4, name: 'Tiger Dabba', price: 130, rating: 4.3, distance: 1.5, location: 'Hadapsar' },
+    { id: 5, name: 'Home Made Meals', price: 140, rating: 4.8, distance: 0.8, location: 'Narhe' },
+    { id: 6, name: 'Student Special Meass', price: 130, rating: 4.3, distance: 1.5, location: 'Ambegao Pathar' },
+    { id: 7, name: 'Makane veg-nonveg', price: 140, rating: 4.8, distance: 0.8, location: 'Hinjewadi' },
+    { id: 8, name: 'Ashok Misal', price: 130, rating: 4.3, distance: 1.5, location: 'Yewalewadi' },
   ];
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        {/* Back Button */}
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
 
-        {/* Title and Greeting */}
-        <View style={styles.headerContent}>
-          <Text style={styles.greeting}>Welcome Back! 👋</Text>
-          <Text style={styles.title}>Mess Dashboard</Text>
+        <View style={styles.headerCenter}>
+          <Text style={styles.greeting}>Hello! 👋</Text>
+          <Text style={styles.title}>Find Your Perfect Mess</Text>
         </View>
 
-        {/* Sign Out */}
         <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
+      {/* Scrollable Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Stats Cards */}
-        <View style={styles.statsGrid}>
-          <View style={[styles.statCard, { backgroundColor: '#ECFDF5' }]}>
-            <Text style={styles.statIcon}>📊</Text>
-            <Text style={[styles.statNumber, { color: '#059669' }]}>{todayStats.orders}</Text>
-            <Text style={styles.statLabel}>Today's Orders</Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>25+</Text>
+            <Text style={styles.statLabel}>Mess Services</Text>
           </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#FEF3C7' }]}>
-            <Text style={styles.statIcon}>💰</Text>
-            <Text style={[styles.statNumber, { color: '#D97706' }]}>₹{todayStats.revenue}</Text>
-            <Text style={styles.statLabel}>Revenue</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#DBEAFE' }]}>
-            <Text style={styles.statIcon}>⏰</Text>
-            <Text style={[styles.statNumber, { color: '#2563EB' }]}>{todayStats.pendingOrders}</Text>
-            <Text style={styles.statLabel}>Pending Orders</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#F3E8FF' }]}>
-            <Text style={styles.statIcon}>👥</Text>
-            <Text style={[styles.statNumber, { color: '#7C3AED' }]}>{todayStats.activeCustomers}</Text>
-            <Text style={styles.statLabel}>Active Customers</Text>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>4.6⭐</Text>
+            <Text style={styles.statLabel}>Avg Rating</Text>
           </View>
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.actionGrid}>
-            <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📋</Text>
-              <Text style={styles.actionText}>View Orders</Text>
-            </TouchableOpacity>
+        <Text style={styles.sectionTitle}>Available Mess Services</Text>
 
-            <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>🍽️</Text>
-              <Text style={styles.actionText}>Update Menu</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>👥</Text>
-              <Text style={styles.actionText}>Customers</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📈</Text>
-              <Text style={styles.actionText}>Analytics</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Recent Orders */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Orders</Text>
-          {recentOrders.map((order) => (
-            <View key={order.id} style={styles.orderCard}>
-              <View style={styles.orderHeader}>
-                <Text style={styles.customerName}>{order.customer}</Text>
-                <Text style={styles.orderAmount}>₹{order.amount}</Text>
-              </View>
-              <Text style={styles.orderItems}>{order.items}</Text>
-              <View style={styles.orderFooter}>
-                <Text
-                  style={[
-                    styles.orderStatus,
-                    order.status === 'Delivered' && styles.statusDelivered,
-                    order.status === 'Preparing' && styles.statusPreparing,
-                    order.status === 'Pending' && styles.statusPending,
-                  ]}
-                >
-                  {order.status}
-                </Text>
-              </View>
+        {messServices.map((mess) => (
+          <TouchableOpacity key={mess.id} style={styles.messCard}>
+            <View style={styles.messHeader}>
+              <Text style={styles.messName}>🍛 {mess.name}</Text>
+              <Text style={styles.messPrice}>₹{mess.price}/day</Text>
             </View>
-          ))}
-        </View>
+            <Text style={styles.messCuisine}>{mess.location}</Text>
+            <View style={styles.messFooter}>
+              <Text style={styles.messRating}>{mess.rating}⭐</Text>
+              <Text style={styles.messDistance}>{mess.distance} km away</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    backgroundColor: '#4F46E5',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  backText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  headerContent: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  signOutButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  signOutText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
-    marginBottom: 30,
-  },
-  statCard: {
-    width: '47%',
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  statIcon: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  section: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  actionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
-  },
-  actionCard: {
-    width: '47%',
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  actionIcon: {
-    fontSize: 30,
-    marginBottom: 8,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  orderCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  customerName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  orderAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#059669',
-  },
-  orderItems: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  orderFooter: {
-    alignItems: 'flex-start',
-  },
-  orderStatus: {
-    fontSize: 12,
-    fontWeight: '600',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusDelivered: {
-    backgroundColor: '#D1FAE5',
-    color: '#065F46',
-  },
-  statusPreparing: {
-    backgroundColor: '#FEF3C7',
-    color: '#92400E',
-  },
-  statusPending: {
-    backgroundColor: '#DBEAFE',
-    color: '#1E40AF',
-  },
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#4F46E5', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 20 },
+  backButton: { paddingRight: 10 },
+  backText: { fontSize: 24, color: 'white', fontWeight: '600' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  greeting: { fontSize: 14, color: 'rgba(255,255,255,0.9)' },
+  title: { fontSize: 18, fontWeight: 'bold', color: 'white' },
+  signOutButton: { backgroundColor: 'rgba(255,255,255,0.2)', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 16 },
+  signOutText: { color: 'white', fontSize: 14, fontWeight: '600' },
+  content: { flex: 1, padding: 20 },
+  statsContainer: { flexDirection: 'row', gap: 15, marginBottom: 30 },
+  statCard: { flex: 1, backgroundColor: 'white', padding: 20, borderRadius: 16, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  statNumber: { fontSize: 24, fontWeight: 'bold', color: '#4F46E5' },
+  statLabel: { fontSize: 14, color: '#6B7280', marginTop: 4 },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#111827', marginBottom: 16 },
+  messCard: { backgroundColor: 'white', padding: 20, borderRadius: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  messHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  messName: { fontSize: 18, fontWeight: 'bold', color: '#111827' },
+  messPrice: { fontSize: 16, fontWeight: 'bold', color: '#059669' },
+  messCuisine: { fontSize: 14, color: '#6B7280', marginBottom: 12 },
+  messFooter: { flexDirection: 'row', justifyContent: 'space-between' },
+  messRating: { fontSize: 14, color: '#F59E0B', fontWeight: '600' },
+  messDistance: { fontSize: 14, color: '#6B7280' },
 });
