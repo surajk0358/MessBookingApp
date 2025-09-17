@@ -1,25 +1,25 @@
+
+// Updated app/_layout.tsx - Add missing routes
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { auth } from '../firebase.config';
 
 export default function RootLayout() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const subscriber = onAuthStateChanged(auth, (user) => {
-      if (initializing) setInitializing(false);
-    });
-    return subscriber;
-  }, [initializing]);
+    // Simulate initialization delay
+    setTimeout(() => {
+      setInitializing(false);
+    }, 2000);
+  }, []);
 
   if (initializing) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>🍽️</Text>
-        <Text style={styles.loadingTitle}>MessAuthApp</Text>
+        <Text style={styles.loadingText}>🍽</Text>
+        <Text style={styles.loadingTitle}>MessApp</Text>
         <Text style={styles.loadingSubtitle}>Loading...</Text>
       </View>
     );
@@ -32,32 +32,36 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="otp" />
         <Stack.Screen name="role-selection" />
-        <Stack.Screen name="consumer/index" />
-        <Stack.Screen name="owner/index" />
+        <Stack.Screen name="consumer" />
+        <Stack.Screen name="owner" />
+        <Stack.Screen name="browse-messes" />
+        <Stack.Screen name="messDetails" />
+        <Stack.Screen name="place-order" />
+        <Stack.Screen name="subscription" />
+        <Stack.Screen name="my-bookings" />
+        <Stack.Screen name="owner-orders" />
+        <Stack.Screen name="settings" />
       </Stack>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#4F46E5',
+  loadingContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#4F46E5' 
   },
-  loadingText: {
-    fontSize: 60,
-    marginBottom: 20,
+  loadingText: { fontSize: 60, marginBottom: 20 },
+  loadingTitle: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    color: 'white', 
+    marginBottom: 10 
   },
-  loadingTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 10,
-  },
-  loadingSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
+  loadingSubtitle: { 
+    fontSize: 16, 
+    color: 'rgba(255,255,255,0.8)' 
   },
 });

@@ -1,11 +1,13 @@
+//components/RoleCard.tsx
+
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 
-interface RoleCardProps {
-  icon: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  onPress: () => void;
+interface RoleCardProps { 
+  icon: string; 
+  title: string; 
+  subtitle: string; 
+  description: string; 
+  onPress: () => void; 
 }
 
 export default function RoleCard({ icon, title, subtitle, description, onPress }: RoleCardProps) {
@@ -25,52 +27,48 @@ export default function RoleCard({ icon, title, subtitle, description, onPress }
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  card: { 
+    backgroundColor: 'white', 
+    borderRadius: 16, 
+    padding: 24, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 8, 
+    elevation: 4 
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  iconContainer: { 
+    width: 60, 
+    height: 60, 
+    borderRadius: 30, 
+    backgroundColor: '#F3F4F6', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 16 
   },
-  icon: {
-    fontSize: 30,
+  icon: { fontSize: 30 },
+  content: { flex: 1 },
+  title: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#111827', 
+    marginBottom: 4 
   },
-  content: {
-    flex: 1,
+  subtitle: { 
+    fontSize: 16, 
+    color: '#6B7280', 
+    marginBottom: 8 
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 4,
+  description: { 
+    fontSize: 14, 
+    color: '#9CA3AF', 
+    lineHeight: 18 
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    lineHeight: 18,
-  },
-  arrow: {
-    fontSize: 20,
-    color: '#4F46E5',
-    fontWeight: 'bold',
+  arrow: { 
+    fontSize: 20, 
+    color: '#4F46E5', 
+    fontWeight: 'bold' 
   },
 });

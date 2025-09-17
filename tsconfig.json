@@ -6,6 +6,7 @@
       "@/*": [
         "./*"
       ]
+      
     }
   },
   "include": [
@@ -13,5 +14,6 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "utils/auth.ts", "server/src/server.js", "server/src/index.ts", "messapp-backend/scripts/seed.js", "messapp-backend/routes/mess.js", "messapp-backend/routes/auth.js", "messapp-backend/routes/orders.js", "messapp-backend/routes/stats.js", "messapp-backend/routes/users.js", "messapp-backend/models/Menu.js", "messapp-backend/models/Mess.js", "messapp-backend/models/Order.js", "messapp-backend/models/Plan.js", "messapp-backend/models/Subscription.js", "messapp-backend/models/User.js", "app/settings.tsx", "app/owner-orders.tsx", "app/mess-profile.tsx", "utils/api.js", "utils/storage.js"  ]
+  
 }
