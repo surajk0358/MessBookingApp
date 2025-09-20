@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "Mess-Project",
-    "slug": "Mess-Project",
+   "name": "Mess Booking App",
+   "slug": "mess-booking-app",
+
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "messproject",
+    "scheme": "messbookingapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -31,7 +32,13 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+          "apiKey": "AIzaSyD0yfd1qWmNhDT-PdMnKPF4Su_GBDR4-_0",
+          "authDomain": "p2--cc.firebaseapp.com",
+          "projectId": "p2--cc",
+          "storageBucket": "p2--cc.firebasestorage.app",
+          "messagingSenderId": "952249619556",
+          "appId": "1:952249619556:web:55dfafb29b94a984e2bb71"
         }
       ]
     ],
