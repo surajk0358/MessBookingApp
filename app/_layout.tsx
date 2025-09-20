@@ -1,5 +1,5 @@
 
-// Updated app/_layout.tsx - Add missing routes
+// app/_layout.tsx - 
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
