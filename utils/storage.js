@@ -1,62 +1,72 @@
-// utils/storage.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Save user data to AsyncStorage
 export const saveUserData = async (user) => {
   try {
     await AsyncStorage.setItem('userData', JSON.stringify(user));
   } catch (error) {
     console.error('Error saving user data:', error);
+    throw new Error('Failed to save user data');
   }
 };
 
-export const getUserData = async () => {
-  try {
-    const data = await AsyncStorage.getItem('userData');
-    return data ? JSON.parse(data) : null;
-  } catch (error) {
-    console.error('Error getting user data:', error);
-    return null;
-  }
-};
-
+// Save auth token to AsyncStorage
 export const saveToken = async (token) => {
   try {
     await AsyncStorage.setItem('authToken', token);
   } catch (error) {
     console.error('Error saving token:', error);
+    throw new Error('Failed to save token');
   }
 };
 
-export const getToken = async () => {
-  try {
-    return await AsyncStorage.getItem('authToken');
-  } catch (error) {
-    console.error('Error getting token:', error);
-    return null;
-  }
-};
-
+// Save user role to AsyncStorage
 export const saveRole = async (role) => {
   try {
     await AsyncStorage.setItem('role', role);
   } catch (error) {
     console.error('Error saving role:', error);
+    throw new Error('Failed to save role');
   }
 };
 
-export const getRole = async () => {
+// Get user data from AsyncStorage
+export const getUserData = async () => {
   try {
-    return await AsyncStorage.getItem('role');
+    const userData = await AsyncStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
   } catch (error) {
-    console.error('Error getting role:', error);
+    console.error('Error retrieving user data:', error);
     return null;
   }
 };
 
-export const clearAllData = async () => {
+// Get auth token from AsyncStorage
+export const getToken = async () => {
   try {
-    await AsyncStorage.multiRemove(['userData', 'authToken', 'role']);
+    return await AsyncStorage.getItem('authToken');
   } catch (error) {
-    console.error('Error clearing data:', error);
+    console.error('Error retrieving token:', error);
+    return null;
+  }
+};
+
+// Get user role from AsyncStorage
+export const getRole = async () => {
+  try {
+    return await AsyncStorage.getItem('role');
+  } catch (error) {
+    console.error('Error retrieving role:', error);
+    return null;
+  }
+};
+
+// Clear all stored data
+export const clearStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+  } catch (error) {
+    console.error('Error clearing storage:', error);
+    throw new Error('Failed to clear storage');
   }
 };

@@ -1,0 +1,1218 @@
+// //messapp-backend/config/database.js - Database Configuration
+// const mongoose = require('mongoose');
+
+// const connectDB = async () => {
+//   try {
+//     const conn = await mongoose.connect(process.env.MONGODB_URI, {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//     });
+
+//     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    
+//     // Handle connection events
+//     mongoose.connection.on('disconnected', () => {
+//       console.log('📴 MongoDB disconnected');
+//     });
+
+//     mongoose.connection.on('error', (err) => {
+//       console.error('❌ MongoDB connection error:', err);
+//     });
+
+//     process.on('SIGINT', async () => {
+//       await mongoose.connection.close();
+//       console.log('📴 MongoDB connection closed due to application termination');
+//       process.exit(0);
+//     });
+
+//   } catch (error) {
+//     console.error('❌ Database connection failed:', error);
+//     process.exit(1);
+//   }
+// };
+
+// module.exports = connectDB;
+
+// // middleware/auth.js - Authentication Middleware
+// const jwt = require('jsonwebtoken');
+// const User = require('../models/User');
+
+// const auth = async (req, res, next) => {
+//   try {
+//     const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+//     if (!token) {
+//       return res.status(401).json({ error: 'No token, authorization denied' });
+//     }
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const user = await User.findById(decoded.userId).populate('userRoles.roleId', 'roleName');
+    
+//     if (!user) {
+//       return res.status(401).json({ error: 'Token is not valid' });
+//     }
+
+//     req.user = user;
+//     next();
+//   } catch (error) {
+//     res.status(401).json({ error: 'Token is not valid' });
+//   }
+// };
+
+// const ownerOnly = (req, res, next) => {
+//   const role = req.user.userRoles.find(r => r.roleId.roleName === 'Mess Owner');
+//   if (!role) {
+//     return res.status(403).json({ error: 'Access denied. Owner role required.' });
+//   }
+//   next();
+// };
+
+// const consumerOnly = (req, res, next) => {
+//   const role = req.user.userRoles.find(r => r.roleId.roleName === 'Mess User');
+//   if (!role) {
+//     return res.status(403).json({ error: 'Access denied. Consumer role required.' });
+//   }
+//   next();
+// };
+
+// module.exports = { auth, ownerOnly, consumerOnly };
+
+// //messapp-backend/models/Mess.js
+// const mongoose = require('mongoose');
+
+// const messSchema = new mongoose.Schema({
+//   messName: {
+//     type: String,
+//     required: true,
+//     trim: true,
+//     maxlength: 100
+//   },
+//   ownerId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   mobile: {
+//     type: String,
+//     required: true
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// messSchema.index({ ownerId: 1 });
+
+// module.exports = mongoose.model('Mess', messSchema);
+
+// //messapp-backend/models/MessMenu.js - Matches MESS_MENU schema
+// const mongoose = require('mongoose');
+
+// const menuSchema = new mongoose.Schema({
+//   messId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Mess',
+//     required: true
+//   },
+//   menuDate: {
+//     type: Date
+//   },
+//   mealType: {
+//     type: String,
+//     enum: ['Breakfast', 'Lunch', 'Dinner'],
+//     required: true
+//   },
+//   itemName: {
+//     type: String,
+//     required: true
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// menuSchema.index({ messId: 1, menuDate: 1, mealType: 1 }, { unique: true });
+
+// module.exports = mongoose.model('MessMenu', menuSchema);
+
+// // models/MessUsers.js - Matches MESS_USERS schema
+// const mongoose = require('mongoose');
+
+// const messUsersSchema = new mongoose.Schema({
+//   messId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Mess',
+//     required: true
+//   },
+//   userId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true,
+//     unique: true // One mess at a time
+//   },
+//   planId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Plan',
+//     required: true
+//   },
+//   startDate: {
+//     type: Date,
+//     required: true
+//   },
+//   endDate: {
+//     type: Date,
+//     required: true
+//   },
+//   status: {
+//     type: String,
+//     enum: ['Active', 'Inactive'],
+//     default: 'Active'
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// messUsersSchema.index({ userId: 1, status: 1 });
+
+// module.exports = mongoose.model('MessUsers', messUsersSchema);
+
+// // models/Order.js
+// const mongoose = require('mongoose');
+
+// const orderSchema = new mongoose.Schema({
+//   customerId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   messId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Mess',
+//     required: true
+//   },
+//   subscriptionId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'MessUsers'
+//   },
+//   orderDate: {
+//     type: Date,
+//     required: true
+//   },
+//   mealType: {
+//     type: String,
+//     enum: ['Breakfast', 'Lunch', 'Dinner'],
+//     required: true
+//   },
+//   items: String,
+//   amount: {
+//     type: Number,
+//     required: true,
+//     min: 0
+//   },
+//   status: {
+//     type: String,
+//     enum: ['Pending', 'Confirmed', 'Preparing', 'Ready', 'Delivered', 'Cancelled'],
+//     default: 'Pending'
+//   },
+//   paymentStatus: {
+//     type: String,
+//     enum: ['pending', 'paid', 'failed', 'refunded'],
+//     default: 'pending'
+//   },
+//   specialInstructions: String
+// }, {
+//   timestamps: true
+// });
+
+// orderSchema.index({ customerId: 1, createdAt: -1 });
+
+// module.exports = mongoose.model('Order', orderSchema);
+
+// // models/Plan.js - Matches PLAN schema
+// const mongoose = require('mongoose');
+
+// const planSchema = new mongoose.Schema({
+//   messId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Mess',
+//     required: true
+//   },
+//   planName: {
+//     type: String,
+//     required: true,
+//     maxlength: 50
+//   },
+//   durationDays: {
+//     type: Number,
+//     min: 1
+//   },
+//   startDate: Date,
+//   endDate: Date,
+//   status: {
+//     type: String,
+//     enum: ['Active', 'Inactive'],
+//     default: 'Active'
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// planSchema.index({ messId: 1 });
+
+// module.exports = mongoose.model('Plan', planSchema);
+
+// // models/Role.js
+// const mongoose = require('mongoose');
+
+// const roleSchema = new mongoose.Schema({
+//   roleName: {
+//     type: String,
+//     required: true,
+//     enum: ['Mess Owner', 'Mess User'],
+//     unique: true
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// });
+
+// module.exports = mongoose.model('Role', roleSchema);
+
+// // models/Subscription.js - User Subscription Model
+// const mongoose = require('mongoose');
+
+// const subscriptionSchema = new mongoose.Schema({
+//   userId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   messId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Mess',
+//     required: true
+//   },
+//   planId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Plan',
+//     required: true
+//   },
+//   startDate: {
+//     type: Date,
+//     required: true
+//   },
+//   endDate: {
+//     type: Date,
+//     required: true
+//   },
+//   status: {
+//     type: String,
+//     enum: ['active', 'expired', 'cancelled', 'paused'],
+//     default: 'active'
+//   },
+//   paymentDetails: {
+//     amount: { type: Number, required: true },
+//     method: {
+//       type: String,
+//       enum: ['wallet', 'upi', 'card', 'cash']
+//     },
+//     transactionId: String,
+//     paidAt: Date
+//   },
+//   mealsConsumed: {
+//     breakfast: { type: Number, default: 0 },
+//     lunch: { type: Number, default: 0 },
+//     dinner: { type: Number, default: 0 }
+//   },
+//   rating: {
+//     stars: { type: Number, min: 1, max: 5 },
+//     review: String,
+//     createdAt: Date
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// subscriptionSchema.index({ userId: 1, status: 1 });
+// subscriptionSchema.index({ messId: 1, status: 1 });
+
+// module.exports = mongoose.model('Subscription', subscriptionSchema);
+
+// // models/User.js - Updated to match schema + password
+// const mongoose = require('mongoose');
+// const bcrypt = require('bcryptjs');
+
+// const userSchema = new mongoose.Schema({
+//   username: {
+//     type: String,
+//     required: true,
+//     trim: true,
+//     maxlength: 100
+//   },
+//   email: {
+//     type: String,
+//     required: true,
+//     unique: true,
+//     trim: true,
+//     lowercase: true
+//   },
+//   mobile: {
+//     type: String,
+//     required: true,
+//     unique: true
+//   },
+//   password: {
+//     type: String,
+//     required: true,
+//     minlength: 6
+//   },
+//   userRoles: [{
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'UserRole'
+//   }],
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// }, {
+//   timestamps: true
+// });
+
+// userSchema.pre('save', async function(next) {
+//   if (!this.isModified('password')) return next();
+//   this.password = await bcrypt.hash(this.password, 12);
+//   next();
+// });
+
+// userSchema.methods.comparePassword = async function(candidatePassword) {
+//   return bcrypt.compare(candidatePassword, this.password);
+// };
+
+// userSchema.index({ mobile: 1 });
+
+// module.exports = mongoose.model('User', userSchema);
+
+// // models/UserRole.js
+// const mongoose = require('mongoose');
+
+// const userRoleSchema = new mongoose.Schema({
+//   userId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   roleId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'Role',
+//     required: true
+//   },
+//   createdBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+//   modifiedBy: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User'
+//   },
+//   modifiedAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// });
+
+// userRoleSchema.index({ userId: 1, roleId: 1 }, { unique: true });
+
+// module.exports = mongoose.model('UserRole', userRoleSchema);
+
+// // routes/auth.js - Updated with login
+// const express = require('express');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
+// const User = require('../models/User');
+// const Role = require('../models/Role');
+// const UserRole = require('../models/UserRole');
+// const { validateMobile, validateEmail } = require('../utils/validation');
+// const router = express.Router();
+
+// // Register
+// router.post('/register', async (req, res) => {
+//   try {
+//     const { mobile, username, email, password, role: roleName } = req.body;
+
+//     if (!mobile || !username || !email || !password || !roleName) {
+//       return res.status(400).json({ error: 'All fields are required' });
+//     }
+
+//     if (!validateMobile(mobile) || !validateEmail(email)) {
+//       return res.status(400).json({ error: 'Invalid mobile or email format' });
+//     }
+
+//     // Check if user exists
+//     let user = await User.findOne({ mobile });
+//     if (user) {
+//       return res.status(400).json({ error: 'User already exists' });
+//     }
+
+//     // Hash password
+//     const hashedPassword = await bcrypt.hash(password, 12);
+
+//     // Create user
+//     user = new User({
+//       username,
+//       email,
+//       mobile,
+//       password: hashedPassword
+//     });
+//     await user.save();
+
+//     // Find or create role
+//     let role = await Role.findOne({ roleName: roleName === 'consumer' ? 'Mess User' : 'Mess Owner' });
+//     if (!role) {
+//       role = new Role({ roleName: roleName === 'consumer' ? 'Mess User' : 'Mess Owner' });
+//       await role.save();
+//     }
+
+//     // Create UserRole
+//     const userRole = new UserRole({
+//       userId: user._id,
+//       roleId: role._id
+//     });
+//     await userRole.save();
+
+//     // Generate JWT
+//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+//     res.status(201).json({ user, token, role: role.roleName });
+//   } catch (error) {
+//     console.error('Registration error:', error);
+//     res.status(500).json({ error: 'Registration failed' });
+//   }
+// });
+
+// // Login
+// router.post('/login', async (req, res) => {
+//   try {
+//     const { identifier, password } = req.body; // identifier can be username, email, or mobile
+
+//     if (!identifier || !password) {
+//       return res.status(400).json({ error: 'Identifier and password required' });
+//     }
+
+//     const user = await User.findOne({
+//       $or: [{ username: identifier }, { email: identifier }, { mobile: identifier }]
+//     }).populate('userRoles.roleId');
+
+//     if (!user || !(await user.comparePassword(password))) {
+//       return res.status(401).json({ error: 'Invalid credentials' });
+//     }
+
+//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+//     const roles = user.userRoles.map(ur => ur.roleId.roleName);
+
+//     res.json({ user, token, role: roles[0] }); // Assume single role
+//   } catch (error) {
+//     console.error('Login error:', error);
+//     res.status(500).json({ error: 'Login failed' });
+//   }
+// });
+
+// // Get user by mobile
+// router.get('/user/:mobile', async (req, res) => {
+//   try {
+//     const { mobile } = req.params;
+//     const user = await User.findOne({ mobile }).populate('userRoles.roleId');
+    
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.json(user);
+//   } catch (error) {
+//     console.error('Get user error:', error);
+//     res.status(500).json({ error: 'Failed to fetch user' });
+//   }
+// });
+
+// // Update user
+// router.patch('/user/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const updates = req.body;
+
+//     const user = await User.findByIdAndUpdate(id, updates, { 
+//       new: true, 
+//       runValidators: true 
+//     }).populate('userRoles.roleId');
+
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     res.json(user);
+//   } catch (error) {
+//     console.error('Update user error:', error);
+//     res.status(500).json({ error: 'Failed to update user' });
+//   }
+// });
+
+// module.exports = router;
+
+// // routes/mess.js - Updated
+// const express = require('express');
+// const Mess = require('../models/Mess');
+// const MessMenu = require('../models/MessMenu');
+// const Plan = require('../models/Plan');
+// const MessUsers = require('../models/MessUsers');
+// const router = express.Router();
+
+// // Get all messes
+// router.get('/', async (req, res) => {
+//   try {
+//     const { lat, lon, radius = 10, foodType } = req.query;
+//     let query = { isActive: true };
+
+//     if (foodType) query.foodType = foodType;
+
+//     let messes = await Mess.find(query)
+//       .populate('ownerId', 'username mobile')
+//       .sort({ createdAt: -1 });
+
+//     // Distance calculation if coords
+//     if (lat && lon) {
+//       // Simplified - implement geo query if needed
+//     }
+
+//     res.json(messes);
+//   } catch (error) {
+//     console.error('Get messes error:', error);
+//     res.status(500).json({ error: 'Failed to fetch messes' });
+//   }
+// });
+
+// // Get mess by ID
+// router.get('/:id', async (req, res) => {
+//   try {
+//     const mess = await Mess.findById(req.params.id).populate('ownerId', 'username mobile');
+    
+//     if (!mess) {
+//       return res.status(404).json({ error: 'Mess not found' });
+//     }
+
+//     const today = new Date();
+//     const menus = await MessMenu.find({ messId: mess._id, menuDate: { $gte: today } });
+
+//     const plans = await Plan.find({ messId: mess._id, status: 'Active' });
+
+//     res.json({ mess, menus, plans });
+//   } catch (error) {
+//     console.error('Get mess error:', error);
+//     res.status(500).json({ error: 'Failed to fetch mess details' });
+//   }
+// });
+
+// // Create mess
+// router.post('/', async (req, res) => {
+//   try {
+//     const messData = req.body;
+//     const mess = new Mess(messData);
+//     await mess.save();
+    
+//     await mess.populate('ownerId');
+//     res.status(201).json(mess);
+//   } catch (error) {
+//     console.error('Create mess error:', error);
+//     res.status(500).json({ error: 'Failed to create mess' });
+//   }
+// });
+
+// // Get owner's messes
+// router.get('/owner/:ownerId', async (req, res) => {
+//   try {
+//     const messes = await Mess.find({ ownerId: req.params.ownerId }).sort({ createdAt: -1 });
+//     res.json(messes);
+//   } catch (error) {
+//     console.error('Get owner messes error:', error);
+//     res.status(500).json({ error: 'Failed to fetch owner messes' });
+//   }
+// });
+
+// module.exports = router;
+
+// // routes/orders.js - Updated
+// const express = require('express');
+// const Order = require('../models/Order');
+// const router = express.Router();
+
+// // Get orders
+// router.get('/', async (req, res) => {
+//   try {
+//     const { page = 1, limit = 20, status, messId, customerId } = req.query;
+    
+//     let query = {};
+//     if (status) query.status = status;
+//     if (messId) query.messId = messId;
+//     if (customerId) query.customerId = customerId;
+
+//     const orders = await Order.find(query)
+//       .populate('customerId', 'username mobile')
+//       .populate('messId', 'messName mobile')
+//       .sort({ createdAt: -1 })
+//       .limit(limit * 1)
+//       .skip((page - 1) * limit);
+
+//     const total = await Order.countDocuments(query);
+
+//     res.json({
+//       orders,
+//       pagination: {
+//         current: page,
+//         pages: Math.ceil(total / limit),
+//         total
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Get orders error:', error);
+//     res.status(500).json({ error: 'Failed to fetch orders' });
+//   }
+// });
+
+// // Create order
+// router.post('/', async (req, res) => {
+//   try {
+//     const orderData = req.body;
+//     const order = new Order(orderData);
+//     await order.save();
+    
+//     await order.populate(['customerId', 'messId']);
+//     res.status(201).json(order);
+//   } catch (error) {
+//     console.error('Create order error:', error);
+//     res.status(500).json({ error: 'Failed to create order' });
+//   }
+// });
+
+// // Update order status
+// router.patch('/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { status } = req.body;
+
+//     const order = await Order.findByIdAndUpdate(
+//       id,
+//       { status },
+//       { new: true }
+//     ).populate(['customerId', 'messId']);
+
+//     if (!order) {
+//       return res.status(404).json({ error: 'Order not found' });
+//     }
+
+//     res.json(order);
+//   } catch (error) {
+//     console.error('Update order error:', error);
+//     res.status(500).json({ error: 'Failed to update order' });
+//   }
+// });
+
+// module.exports = router;
+
+// // routes/stats.js - Updated for owner
+// const express = require('express');
+// const Order = require('../models/Order');
+// const MessUsers = require('../models/MessUsers');
+// const router = express.Router();
+
+// // Get owner stats
+// router.get('/owner/:ownerId', async (req, res) => {
+//   try {
+//     const { ownerId } = req.params;
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
+
+//     const ownerMesses = await require('../models/Mess').find({ ownerId }).select('_id');
+//     const messIds = ownerMesses.map(m => m._id);
+
+//     const [todayOrders, monthlyRevenue, activeSubscriptions] = await Promise.all([
+//       Order.countDocuments({
+//         messId: { $in: messIds },
+//         createdAt: { $gte: today }
+//       }),
+//       Order.aggregate([
+//         {
+//           $match: {
+//             messId: { $in: messIds },
+//             createdAt: { $gte: new Date(today.getFullYear(), today.getMonth(), 1) },
+//             paymentStatus: 'paid'
+//           }
+//         },
+//         { $group: { _id: null, total: { $sum: '$amount' } } }
+//       ]),
+//       MessUsers.countDocuments({
+//         messId: { $in: messIds },
+//         status: 'Active'
+//       })
+//     ]);
+
+//     res.json({
+//       todayOrders,
+//       monthlyRevenue: monthlyRevenue[0]?.total || 0,
+//       activeSubscriptions
+//     });
+//   } catch (error) {
+//     console.error('Get owner stats error:', error);
+//     res.status(500).json({ error: 'Failed to fetch statistics' });
+//   }
+// });
+
+// module.exports = router;
+
+// // routes/users.js - Updated
+// const express = require('express');
+// const User = require('../models/User');
+// const MessUsers = require('../models/MessUsers');
+// const router = express.Router();
+
+// // Get user subscriptions
+// router.get('/:userId/subscriptions', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+    
+//     const subscriptions = await MessUsers.find({ userId })
+//       .populate('messId', 'messName mobile')
+//       .populate('planId', 'planName durationDays')
+//       .sort({ createdAt: -1 });
+
+//     res.json(subscriptions);
+//   } catch (error) {
+//     console.error('Get user subscriptions error:', error);
+//     res.status(500).json({ error: 'Failed to fetch subscriptions' });
+//   }
+// });
+
+// // Create subscription
+// router.post('/:userId/subscriptions', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const subscriptionData = { ...req.body, userId };
+
+//     // Check active
+//     const active = await MessUsers.findOne({
+//       userId,
+//       status: 'Active',
+//       endDate: { $gte: new Date() }
+//     });
+
+//     if (active) {
+//       return res.status(400).json({ error: 'Active subscription exists' });
+//     }
+
+//     const subscription = new MessUsers(subscriptionData);
+//     await subscription.save();
+    
+//     await subscription.populate(['messId', 'planId']);
+
+//     res.status(201).json(subscription);
+//   } catch (error) {
+//     console.error('Create subscription error:', error);
+//     res.status(500).json({ error: 'Failed to create subscription' });
+//   }
+// });
+
+// module.exports = router;
+
+// //messapp-abackend/scripts/seed.js
+// const mongoose = require('mongoose');
+// const bcrypt = require('bcryptjs');
+// const User = require('../models/User');
+// const Role = require('../models/Role');
+// const UserRole = require('../models/UserRole');
+// const Mess = require('../models/Mess');
+// const MessMenu = require('../models/MessMenu');
+// const Plan = require('../models/Plan');
+// const MessUsers = require('../models/MessUsers');
+// const dotenv = require('dotenv');
+
+// dotenv.config();
+
+// const seedData = async () => {
+//   try {
+//     await mongoose.connect(process.env.MONGODB_URI);
+//     console.log('Connected to MongoDB');
+
+//     // Clear existing data
+//     await Promise.all([
+//       User.deleteMany({}),
+//       Role.deleteMany({}),
+//       UserRole.deleteMany({}),
+//       Mess.deleteMany({}),
+//       MessMenu.deleteMany({}),
+//       Plan.deleteMany({}),
+//       MessUsers.deleteMany({})
+//     ]);
+
+//     // Seed roles
+//     const roles = await Role.insertMany([
+//       { roleName: 'Mess Owner' },
+//       { roleName: 'Mess User' }
+//     ]);
+
+//     // Seed users with hashed password
+//     const hashedPassword = await bcrypt.hash('password123', 12);
+//     const users = await User.insertMany([
+//       {
+//         username: 'johnconsumer',
+//         email: 'john@example.com',
+//         mobile: '+919876543210',
+//         password: hashedPassword
+//       },
+//       {
+//         username: 'sarahowner',
+//         email: 'sarah@example.com',
+//         mobile: '+919876543211',
+//         password: hashedPassword
+//       }
+//     ]);
+
+//     // Create UserRoles
+//     await UserRole.insertMany([
+//       { userId: users[0]._id, roleId: roles[1]._id }, // Consumer
+//       { userId: users[1]._id, roleId: roles[0]._id } // Owner
+//     ]);
+
+//     // Seed mess
+//     const mess = await Mess.create({
+//       messName: 'Healthy Tiffin Service',
+//       ownerId: users[1]._id,
+//       mobile: '+919876543211'
+//     });
+
+//     // Seed menu
+//     const today = new Date();
+//     await MessMenu.create({
+//       messId: mess._id,
+//       menuDate: today,
+//       mealType: 'Lunch',
+//       itemName: 'Dal Rice'
+//     });
+
+//     // Seed plan
+//     const plan = await Plan.create({
+//       messId: mess._id,
+//       planName: 'Monthly Plan',
+//       durationDays: 30,
+//       status: 'Active'
+//     });
+
+//     // Seed MessUsers (subscription)
+//     await MessUsers.create({
+//       messId: mess._id,
+//       userId: users[0]._id,
+//       planId: plan._id,
+//       startDate: today,
+//       endDate: new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000),
+//       status: 'Active'
+//     });
+
+//     console.log('✅ Database seeded with sample data matching Excel schema!');
+//   } catch (error) {
+//     console.error('❌ Seeding error:', error);
+//   } finally {
+//     mongoose.disconnect();
+//   }
+// };
+
+// if (require.main === module) {
+//   seedData();
+// }
+
+// //messapp-backend/utils/validation.js
+// const mongoose = require('mongoose');
+
+// const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// const validateMobile = (mobile) => /^\+91[6-9]\d{9}$/.test(mobile);
+
+// const validateEmail = (email) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+
+// const validateCoordinates = (lat, lon) => (
+//   typeof lat === 'number' && typeof lon === 'number' &&
+//   lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+// );
+
+// const sanitizeString = (str, maxLength = 255) => {
+//   if (typeof str !== 'string') return '';
+//   return str.trim().substring(0, maxLength);
+// };
+
+// module.exports = {
+//   validateObjectId,
+//   validateMobile,
+//   validateEmail,
+//   validateCoordinates,
+//   sanitizeString
+// };
+
+// // Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// // TODO: Add SDKs for Firebase products that you want to use
+// // https://firebase.google.com/docs/web/setup#available-libraries
+
+// // Your web app's Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD0yfd1qWmNhDT-PdMnKPF4Su_GBDR4-_0",
+//   authDomain: "p2--cc.firebaseapp.com",
+//   projectId: "p2--cc",
+//   storageBucket: "p2--cc.firebasestorage.app",
+//   messagingSenderId: "952249619556",
+//   appId: "1:952249619556:web:55dfafb29b94a984e2bb71"
+// };
+
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// export const auth = getAuth();
+// export { firebaseConfig };
+
+// //utils/api.js
+// const baseURL = 'http://localhost:4000/api'; // Change for production
+
+// class API {
+//   static async get(endpoint, params = {}) {
+//     const url = new URL(`${baseURL}${endpoint}`);
+//     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+//     const response = await fetch(url);
+//     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//     return response.json();
+//   }
+
+//   static async post(endpoint, data) {
+//     const response = await fetch(`${baseURL}${endpoint}`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(data)
+//     });
+//     if (!response.ok) {
+//       const error = await response.json();
+//       throw new Error(error.error || `HTTP error! status: ${response.status}`);
+//     }
+//     return response.json();
+//   }
+
+//   static async patch(endpoint, data) {
+//     const response = await fetch(`${baseURL}${endpoint}`, {
+//       method: 'PATCH',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(data)
+//     });
+//     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//     return response.json();
+//   }
+
+//   // User methods
+//   static async getUser(mobile) {
+//     return this.get(`/auth/user/${mobile.replace('+', '')}`);
+//   }
+
+//   static async updateUser(id, updates) {
+//     return this.patch(`/auth/user/${id}`, updates);
+//   }
+
+//   // Mess methods
+//   static async getMesses(params = {}) {
+//     return this.get('/messes', params);
+//   }
+
+//   static async getMess(id) {
+//     return this.get(`/messes/${id}`);
+//   }
+
+//   // Menu methods
+//   static async getMenus(messId, date) {
+//     return this.get('/menus', { messId, date });
+//   }
+
+//   // Order methods
+//   static async getOrders(params = {}) {
+//     return this.get('/orders', params);
+//   }
+
+//   static async createOrder(data) {
+//     return this.post('/orders', data);
+//   }
+
+//   static async updateOrderStatus(id, status) {
+//     return this.patch(`/orders/${id}`, { status });
+//   }
+
+//   // Subscription methods
+//   static async getUserSubscriptions(userId) {
+//     return this.get(`/users/${userId}/subscriptions`);
+//   }
+
+//   static async createSubscription(userId, data) {
+//     return this.post(`/users/${userId}/subscriptions`, data);
+//   }
+
+//   // Stats
+//   static async getOwnerStats(ownerId) {
+//     return this.get(`/stats/owner/${ownerId}`);
+//   }
+// }
+
+// export { API };
+
+// // utils/storage.js - Full AsyncStorage implementation
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// export const saveUserData = async (user) => {
+//   try {
+//     await AsyncStorage.setItem('userData', JSON.stringify(user));
+//   } catch (error) {
+//     console.error('Error saving user data:', error);
+//   }
+// };
+
+// export const getUserData = async () => {
+//   try {
+//     const data = await AsyncStorage.getItem('userData');
+//     return data ? JSON.parse(data) : null;
+//   } catch (error) {
+//     console.error('Error getting user data:', error);
+//     return null;
+//   }
+// };
+
+// export const saveToken = async (token) => {
+//   try {
+//     await AsyncStorage.setItem('authToken', token);
+//   } catch (error) {
+//     console.error('Error saving token:', error);
+//   }
+// };
+
+// export const getToken = async () => {
+//   try {
+//     return await AsyncStorage.getItem('authToken');
+//   } catch (error) {
+//     console.error('Error getting token:', error);
+//     return null;
+//   }
+// };
+
+// export const saveRole = async (role) => {
+//   try {
+//     await AsyncStorage.setItem('role', role);
+//   } catch (error) {
+//     console.error('Error saving role:', error);
+//   }
+// };
+
+// export const getRole = async () => {
+//   try {
+//     return await AsyncStorage.getItem('role');
+//   } catch (error) {
+//     console.error('Error getting role:', error);
+//     return null;
+//   }
+// };
+
+// export const clearAllData = async () => {
+//   try {
+//     await AsyncStorage.multiRemove(['userData', 'authToken', 'role']);
+//   } catch (error) {
+//     console.error('Error clearing data:', error);
+//   }
+// };

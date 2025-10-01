@@ -6,24 +6,24 @@ const roleSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ['Mess Owner', 'Mess User'],
-    unique: true
+    unique: true,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   modifiedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   modifiedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model('Role', roleSchema);

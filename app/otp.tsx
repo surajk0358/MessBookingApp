@@ -1,21 +1,46 @@
-// app/otp.tsx
-
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import OTPInput from '../components/OTPInput';
-import { saveUserData, getUserData } from '../utils/storage';
+import {
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+import OTPInput from '../components/OTPInput'; // Ensure this component exists
+import {
+  saveUserData,
+  saveToken,
+  saveRole,
+  saveLastLoginTime,
+} from '../utils/storage'; // Ensure these utility functions exist
+import { API } from '../utils/api'; // Ensure this API utility exists
 
 export default function OTPScreen() {
-  const { phone, userExists } = useLocalSearchParams<{ phone: string; userExists: string }>();
+  const { phone, userExists, userId } = useLocalSearchParams<{
+    phone: string;
+    userExists: string;
+    userId?: string;
+  }>();
+
   const [otp, setOTP] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimer((t) => (t > 0 ? t - 1 : 0));
+      setTimer((t) => {
+        if (t <= 1) {
+          setCanResend(true);
+          return 0;
+        }
+        return t - 1;
+      });
     }, 1000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -28,25 +53,100 @@ export default function OTPScreen() {
 
     try {
       setLoading(true);
-      
-      // Simulate OTP verification with delay
-      setTimeout(async () => {
-        setLoading(false);
-        router.replace('/register'); // Redirect to register page
-      }, 1500);
-      
+
+      // Simulate OTP verification
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      if (userExists === 'true' && userId) {
+        // Existing user - get user data and login
+        try {
+          const userProfile = await API.getUserProfile(userId);
+          if (userProfile.success) {
+            const loginResponse = await API.post('/auth/otp-login', {
+              userId: userId,
+              mobile: phone,
+              otp: otpString,
+            });
+
+            // Save auth data
+            await saveUserData(loginResponse.user);
+            await saveToken(loginResponse.token);
+            await saveRole(
+              loginResponse.role === 'Mess User' ? 'consumer' : 'owner'
+            );
+            await saveLastLoginTime();
+
+            // Navigate to role-specific dashboard
+            const role =
+              loginResponse.role === 'Mess User' ? 'consumer' : 'owner';
+            Alert.alert('Welcome Back!', 'OTP verified successfully.', [
+              {
+                text: 'OK',
+                onPress: () => {
+                  router.replace(`/${role}`);
+                },
+              },
+            ]);
+            return;
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          Alert.alert('Login Error', 'Failed to log in. Please try again.');
+          setOTP(['', '', '', '', '', '']);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // New user - redirect to registration
+      Alert.alert('OTP Verified!', 'Please complete your registration.', [
+        {
+          text: 'Continue',
+          onPress: () => {
+            router.replace({
+              pathname: '/(auth)/register',
+              params: { verifiedPhone: phone },
+            });
+          },
+        },
+      ]);
     } catch (error: any) {
       console.error('OTP verification error:', error);
-      Alert.alert('Verification Failed', 'Something went wrong. Please try again.');
+      Alert.alert(
+        'Verification Failed',
+        'Invalid OTP or verification failed. Please try again.',
+        [{ text: 'OK' }]
+      );
       setOTP(['', '', '', '', '', '']);
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleResendOTP = () => {
-    setTimer(60);
-    setOTP(['', '', '', '', '', '']); // Clear OTP fields
-    Alert.alert('OTP Sent', 'A new OTP has been sent to your mobile number.');
+  const handleResendOTP = async () => {
+    try {
+      setTimer(60);
+      setCanResend(false);
+      setOTP(['', '', '', '', '', '']);
+
+      // Simulate OTP resend API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      Alert.alert(
+        'OTP Sent',
+        'A new OTP has been sent to your mobile number.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      Alert.alert(
+        'Resend Failed',
+        'Failed to resend OTP. Please try again.',
+        [{ text: 'OK' }]
+      );
+      setCanResend(true);
+      setTimer(0);
+    }
   };
 
   const formatTimer = (seconds: number) => {
@@ -56,40 +156,60 @@ export default function OTPScreen() {
   };
 
   const isOTPComplete = otp.join('').length === 6;
+  const isExistingUser = userExists === 'true';
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+            disabled={loading}
+          >
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
+
           <Text style={styles.title}>Verify OTP</Text>
           <Text style={styles.subtitle}>Enter the 6-digit code sent to</Text>
           <Text style={styles.phoneNumber}>{phone}</Text>
+
+          {isExistingUser && (
+            <View style={styles.userStatusBadge}>
+              <Text style={styles.userStatusText}>Welcome back! 👋</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.otpSection}>
           <Text style={styles.otpLabel}>Enter OTP</Text>
-          <OTPInput 
-            otp={otp} 
+          <OTPInput
+            otp={otp}
             setOTP={setOTP}
             onComplete={handleVerifyOTP}
+            editable={!loading}
           />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.verifyButton, 
-              (!isOTPComplete || loading) && styles.verifyButtonDisabled
-            ]} 
-            onPress={handleVerifyOTP} 
+              styles.verifyButton,
+              (!isOTPComplete || loading) && styles.verifyButtonDisabled,
+            ]}
+            onPress={handleVerifyOTP}
             disabled={!isOTPComplete || loading}
             activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color="white" />
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="white" size="small" />
+                <Text style={[styles.verifyButtonText, { marginLeft: 10 }]}>
+                  Verifying...
+                </Text>
+              </View>
             ) : (
-              <Text style={styles.verifyButtonText}>Verify OTP</Text>
+              <Text style={styles.verifyButtonText}>
+                {isExistingUser ? 'Login' : 'Verify & Continue'}
+              </Text>
             )}
           </TouchableOpacity>
 
@@ -100,7 +220,11 @@ export default function OTPScreen() {
                 Resend OTP in {formatTimer(timer)}
               </Text>
             ) : (
-              <TouchableOpacity onPress={handleResendOTP} style={styles.resendButton}>
+              <TouchableOpacity
+                onPress={handleResendOTP}
+                style={styles.resendButton}
+                disabled={loading}
+              >
                 <Text style={styles.resendText}>Resend OTP</Text>
               </TouchableOpacity>
             )}
@@ -111,6 +235,19 @@ export default function OTPScreen() {
           <Text style={styles.helpText}>
             For testing purposes, you can enter any 6-digit code
           </Text>
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={() => {
+              if (isExistingUser) {
+                router.replace('/role-selection');
+              } else {
+                router.replace('/(auth)/register');
+              }
+            }}
+            disabled={loading}
+          >
+            <Text style={styles.skipText}>Skip OTP (Development Only)</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -159,6 +296,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  userStatusBadge: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  userStatusText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
   otpSection: {
     backgroundColor: 'white',
@@ -209,6 +360,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.5,
   },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   timerSection: {
     marginTop: 24,
     alignItems: 'center',
@@ -240,5 +395,14 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  skipButton: {
+    padding: 8,
+  },
+  skipText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

@@ -1,44 +1,45 @@
-//messapp-backend/models/MessMenu.js - Matches MESS_MENU schema
+// models/MessMenu.js
 const mongoose = require('mongoose');
 
 const menuSchema = new mongoose.Schema({
   messId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Mess',
-    required: true
+    required: true,
   },
   menuDate: {
-    type: Date
+    type: Date,
   },
   mealType: {
     type: String,
     enum: ['Breakfast', 'Lunch', 'Dinner'],
-    required: true
+    required: true,
   },
   itemName: {
     type: String,
-    required: true
+    required: true,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   modifiedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   modifiedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 }, {
-  timestamps: true
+  timestamps: true,
 });
 
+// Unique menu per mess, date, and meal type
 menuSchema.index({ messId: 1, menuDate: 1, mealType: 1 }, { unique: true });
 
 module.exports = mongoose.model('MessMenu', menuSchema);

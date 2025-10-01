@@ -1,0 +1,5316 @@
+
+// // Updated app/_layout.tsx - Add missing routes
+// import { Stack } from 'expo-router';
+// import { StatusBar } from 'expo-status-bar';
+// import { useEffect, useState } from 'react';
+// import { StyleSheet, Text, View } from 'react-native';
+
+// export default function RootLayout() {
+//   const [initializing, setInitializing] = useState(true);
+
+//   useEffect(() => {
+//     // Simulate initialization delay
+//     setTimeout(() => {
+//       setInitializing(false);
+//     }, 2000);
+//   }, []);
+
+//   if (initializing) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <Text style={styles.loadingText}>🍽</Text>
+//         <Text style={styles.loadingTitle}>MessApp</Text>
+//         <Text style={styles.loadingSubtitle}>Loading...</Text>
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <StatusBar style="light" backgroundColor="#4F46E5" />
+//       <Stack screenOptions={{ headerShown: false }}>
+//         <Stack.Screen name="index" />
+//         <Stack.Screen name="otp" />
+//         <Stack.Screen name="role-selection" />
+//         <Stack.Screen name="consumer" />
+//         <Stack.Screen name="owner" />
+//         <Stack.Screen name="browse-messes" />
+//         <Stack.Screen name="messDetails" />
+//         <Stack.Screen name="place-order" />
+//         <Stack.Screen name="subscription" />
+//         <Stack.Screen name="my-bookings" />
+//         <Stack.Screen name="owner-orders" />
+//         <Stack.Screen name="settings" />
+//       </Stack>
+//     </>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   loadingContainer: { 
+//     flex: 1, 
+//     justifyContent: 'center', 
+//     alignItems: 'center', 
+//     backgroundColor: '#4F46E5' 
+//   },
+//   loadingText: { fontSize: 60, marginBottom: 20 },
+//   loadingTitle: { 
+//     fontSize: 24, 
+//     fontWeight: 'bold', 
+//     color: 'white', 
+//     marginBottom: 10 
+//   },
+//   loadingSubtitle: { 
+//     fontSize: 16, 
+//     color: 'rgba(255,255,255,0.8)' 
+//   },
+// });
+
+// // app/(auth)/login.tsx
+// import React, { useState } from 'react';
+// import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+// import { router } from 'expo-router';
+// import { API } from '../../utils/api';
+// import { saveUserData, saveToken, saveRole } from '../../utils/storage';
+
+// export default function LoginScreen() {
+//   const [identifier, setIdentifier] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const handleLogin = async () => {
+//     if (!identifier || !password) {
+//       Alert.alert('Error', 'Please fill all fields');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const response = await API.post('/auth/login', {
+//         identifier,
+//         password
+//       });
+//       await saveUserData(response.user);
+//       await saveToken(response.token);
+//       await saveRole(response.role === 'Mess User' ? 'consumer' : 'owner');
+//       Alert.alert('Success', 'Login successful!');
+//       router.replace(`/${response.role === 'Mess User' ? 'consumer' : 'owner'}`);
+//     } catch (error: any) {
+//       Alert.alert('Error', error.message || 'Login failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.header}>
+//         <Text style={styles.emoji}>🔐</Text>
+//         <Text style={styles.title}>Login</Text>
+//         <Text style={styles.subtitle}>Welcome back!</Text>
+//       </View>
+
+//       <View style={styles.formContainer}>
+//         <View style={styles.section}>
+//           <View style={styles.inputGroup}>
+//             <Text style={styles.label}>Identifier (Username/Email/Mobile)</Text>
+//             <TextInput style={styles.input} placeholder="Enter identifier" value={identifier} onChangeText={setIdentifier} />
+//           </View>
+//           <View style={styles.inputGroup}>
+//             <Text style={styles.label}>Password</Text>
+//             <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+//           </View>
+//           <TouchableOpacity style={[styles.loginButton, loading && styles.disabledButton]} onPress={handleLogin} disabled={loading}>
+//             <Text style={styles.loginButtonText}>{loading ? 'Logging in...' : 'Login'}</Text>
+//           </TouchableOpacity>
+//         </View>
+//         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+//           <Text style={styles.backButtonText}>← Back</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: '#4F46E5' },
+//   header: { alignItems: 'center', marginTop: 60, marginBottom: 40 },
+//   emoji: { fontSize: 60, marginBottom: 20 },
+//   title: { fontSize: 28, fontWeight: 'bold', color: 'white', marginBottom: 10 },
+//   subtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', textAlign: 'center' },
+//   formContainer: { flex: 1, padding: 20 },
+//   section: { backgroundColor: 'white', borderRadius: 20, padding: 25, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8 },
+//   inputGroup: { marginBottom: 20 },
+//   label: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 8 },
+//   input: { borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, padding: 12, fontSize: 16, backgroundColor: '#F8FAFC' },
+//   loginButton: { backgroundColor: '#4F46E5', padding: 16, borderRadius: 12, alignItems: 'center' },
+//   disabledButton: { backgroundColor: '#9CA3AF' },
+//   loginButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+//   backButton: { alignSelf: 'center', padding: 12, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 25, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+//   backButtonText: { color: 'white', fontSize: 16, fontWeight: '600' }
+// });
+
+// // app/(auth)/register.tsx
+// import React, { useState } from 'react';
+// import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, SafeAreaView } from 'react-native';
+// import { router } from 'expo-router';
+// import { API } from '../../utils/api';
+
+// export default function RegisterScreen() {
+//   const [selectedRole, setSelectedRole] = useState('');
+//   const [formData, setFormData] = useState({
+//     username: '',
+//     email: '',
+//     mobile: '',
+//     password: '',
+//     // Additional fields that will be shown/hidden based on role
+//     fullName: '',
+//     address: '',
+//     messName: '',
+//     ownerName: '',
+//     messAddress: '',
+//     licenseNumber: '',
+//     gstNumber: '',
+//   });
+//   const [loading, setLoading] = useState(false);
+
+//   const handleInputChange = (field: string, value: string) => {
+//     setFormData(prev => ({ ...prev, [field]: value }));
+//   };
+
+//   const validateForm = () => {
+//     const { username, email, mobile, password } = formData;
+    
+//     if (!selectedRole) {
+//       Alert.alert('Error', 'Please select your role (Mess User or Mess Owner)');
+//       return false;
+//     }
+
+//     if (!username || !email || !mobile || !password) {
+//       Alert.alert('Error', 'Please fill all required fields');
+//       return false;
+//     }
+
+//     if (selectedRole === 'consumer') {
+//       const { fullName, address } = formData;
+//       if (!fullName || !address) {
+//         Alert.alert('Error', 'Please fill Full Name and Address for Mess User');
+//         return false;
+//       }
+//     }
+
+//     if (selectedRole === 'owner') {
+//       const { messName, ownerName, messAddress } = formData;
+//       if (!messName || !ownerName || !messAddress) {
+//         Alert.alert('Error', 'Please fill Mess Name, Owner Name, and Mess Address');
+//         return false;
+//       }
+//     }
+
+//     return true;
+//   };
+
+//   const handleRegister = async () => {
+//     if (!validateForm()) return;
+
+//     setLoading(true);
+//     try {
+//       const registrationData = {
+//         username: formData.username,
+//         email: formData.email,
+//         mobile: formData.mobile,
+//         password: formData.password,
+//         role: selectedRole === 'consumer' ? 'Mess User' : 'Mess Owner',
+//         ...(selectedRole === 'consumer' && {
+//           fullName: formData.fullName,
+//           address: formData.address,
+//         }),
+//         ...(selectedRole === 'owner' && {
+//           messName: formData.messName,
+//           ownerName: formData.ownerName,
+//           messAddress: formData.messAddress,
+//           licenseNumber: formData.licenseNumber,
+//           gstNumber: formData.gstNumber,
+//         }),
+//       };
+
+//       const response = await API.post('/auth/register', registrationData);
+      
+//       Alert.alert(
+//         'Success', 
+//         'Registration successfully completed!',
+//         [
+//           {
+//             text: 'OK',
+//             onPress: () => router.push('/(auth)/login')
+//           }
+//         ]
+//       );
+//     } catch (error: any) {
+//       Alert.alert('Error', error.message || 'Registration failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+//         <View style={styles.header}>
+//           <Text style={styles.title}>Register</Text>
+//         </View>
+
+//         <View style={styles.formContainer}>
+//           <View style={styles.formSection}>
+//             <Text style={styles.sectionTitle}>Create Your Account</Text>
+//             <Text style={styles.sectionSubtitle}>
+//               Join our community! Fill in the details below to get started.
+//             </Text>
+
+//             {/* Common Fields */}
+//             <View style={styles.inputGroup}>
+//               <Text style={styles.label}>Username</Text>
+//               <TextInput 
+//                 style={styles.input} 
+//                 placeholder="Choose a unique username" 
+//                 value={formData.username}
+//                 onChangeText={(value) => handleInputChange('username', value)}
+//                 autoCapitalize="none"
+//               />
+//             </View>
+            
+//             <View style={styles.inputGroup}>
+//               <Text style={styles.label}>Email</Text>
+//               <TextInput 
+//                 style={styles.input} 
+//                 placeholder="your.email@example.com" 
+//                 value={formData.email}
+//                 onChangeText={(value) => handleInputChange('email', value)}
+//                 keyboardType="email-address"
+//                 autoCapitalize="none"
+//               />
+//             </View>
+            
+//             <View style={styles.inputGroup}>
+//               <Text style={styles.label}>Mobile Number</Text>
+//               <TextInput 
+//                 style={styles.input} 
+//                 placeholder="+1 (555) 123-4567" 
+//                 value={formData.mobile}
+//                 onChangeText={(value) => handleInputChange('mobile', value)}
+//                 keyboardType="phone-pad"
+//               />
+//             </View>
+            
+//             <View style={styles.inputGroup}>
+//               <Text style={styles.label}>Password</Text>
+//               <TextInput 
+//                 style={styles.input} 
+//                 placeholder="Enter your secure password" 
+//                 value={formData.password}
+//                 onChangeText={(value) => handleInputChange('password', value)}
+//                 secureTextEntry
+//               />
+//             </View>
+
+//             {/* Mess User Specific Fields */}
+//             {selectedRole === 'consumer' && (
+//               <>
+//                 <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>Full Name</Text>
+//                   <TextInput 
+//                     style={styles.input} 
+//                     placeholder="Enter your full name" 
+//                     value={formData.fullName}
+//                     onChangeText={(value) => handleInputChange('fullName', value)}
+//                   />
+//                 </View>
+                
+//                 <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>Address</Text>
+//                   <TextInput 
+//                     style={[styles.input, styles.textArea]} 
+//                     placeholder="Enter your complete address" 
+//                     value={formData.address}
+//                     onChangeText={(value) => handleInputChange('address', value)}
+//                     multiline
+//                     numberOfLines={3}
+//                   />
+//                 </View>
+//               </>
+//             )}
+
+//             {/* Mess Owner Specific Fields */}
+//             {selectedRole === 'owner' && (
+//               <>
+//                 <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>Mess Name</Text>
+//                   <TextInput 
+//                     style={styles.input} 
+//                     placeholder="Enter your mess name" 
+//                     value={formData.messName}
+//                     onChangeText={(value) => handleInputChange('messName', value)}
+//                   />
+//                 </View>
+                
+//                 <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>Owner Name</Text>
+//                   <TextInput 
+//                     style={styles.input} 
+//                     placeholder="Enter owner's full name" 
+//                     value={formData.ownerName}
+//                     onChangeText={(value) => handleInputChange('ownerName', value)}
+//                   />
+//                 </View>
+                
+//                 <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>Mess Address</Text>
+//                   <TextInput 
+//                     style={[styles.input, styles.textArea]} 
+//                     placeholder="Enter mess complete address" 
+//                     value={formData.messAddress}
+//                     onChangeText={(value) => handleInputChange('messAddress', value)}
+//                     multiline
+//                     numberOfLines={3}
+//                   />
+//                 </View>
+                
+//                 {/* <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>License Number (Optional)</Text>
+//                   <TextInput 
+//                     style={styles.input} 
+//                     placeholder="Enter business license number" 
+//                     value={formData.licenseNumber}
+//                     onChangeText={(value) => handleInputChange('licenseNumber', value)}
+//                   />
+//                 </View> */}
+                
+//                 {/* <View style={styles.inputGroup}>
+//                   <Text style={styles.label}>GST Number (Optional)</Text>
+//                   <TextInput 
+//                     style={styles.input} 
+//                     placeholder="Enter GST registration number" 
+//                     value={formData.gstNumber}
+//                     onChangeText={(value) => handleInputChange('gstNumber', value)}
+//                   />
+//                 </View> */}
+//               </>
+//             )}
+
+//             {/* Role Selection */}
+//             <View style={styles.roleSection}>
+//               <Text style={styles.roleLabel}>Role</Text>
+//               <View style={styles.roleContainer}>
+//                 <TouchableOpacity
+//                   style={[
+//                     styles.roleButton, 
+//                     selectedRole === 'consumer' && styles.selectedRoleButton
+//                   ]}
+//                   onPress={() => setSelectedRole('consumer')}
+//                 >
+//                   <Text style={[
+//                     styles.roleButtonText,
+//                     selectedRole === 'consumer' && styles.selectedRoleButtonText
+//                   ]}>
+//                     Mess User
+//                   </Text>
+//                 </TouchableOpacity>
+                
+//                 <TouchableOpacity
+//                   style={[
+//                     styles.roleButton, 
+//                     selectedRole === 'owner' && styles.selectedRoleButton
+//                   ]}
+//                   onPress={() => setSelectedRole('owner')}
+//                 >
+//                   <Text style={[
+//                     styles.roleButtonText,
+//                     selectedRole === 'owner' && styles.selectedRoleButtonText
+//                   ]}>
+//                     Mess Owner
+//                   </Text>
+//                 </TouchableOpacity>
+//               </View>
+//             </View>
+
+//             {/* Register Button */}
+//             <TouchableOpacity 
+//               style={[styles.registerButton, loading && styles.disabledButton]} 
+//               onPress={handleRegister}
+//               disabled={loading}
+//             >
+//               <Text style={styles.registerButtonText}>
+//                 {loading ? 'Registering...' : 'Register'}
+//               </Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#F8F9FA',
+//   },
+//   scrollContent: {
+//     flexGrow: 1,
+//     paddingBottom: 20,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     paddingTop: 10,
+//     paddingBottom: 20,
+//   },
+//   title: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#333',
+//   },
+//   formContainer: {
+//     flex: 1,
+//     paddingHorizontal: 20,
+//   },
+//   formSection: {
+//     backgroundColor: 'white',
+//     borderRadius: 12,
+//     padding: 20,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 8,
+//     elevation: 3,
+//   },
+//   sectionTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     textAlign: 'center',
+//     marginBottom: 8,
+//   },
+//   sectionSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//     textAlign: 'center',
+//     marginBottom: 25,
+//     lineHeight: 20,
+//   },
+//   inputGroup: {
+//     marginBottom: 20,
+//   },
+//   label: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 8,
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: '#E0E0E0',
+//     borderRadius: 8,
+//     padding: 12,
+//     fontSize: 16,
+//     backgroundColor: '#FAFAFA',
+//     color: '#333',
+//   },
+//   textArea: {
+//     height: 80,
+//     textAlignVertical: 'top',
+//   },
+//   roleSection: {
+//     marginBottom: 25,
+//   },
+//   roleLabel: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 15,
+//   },
+//   roleContainer: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     gap: 10,
+//   },
+//   roleButton: {
+//     flex: 1,
+//     backgroundColor: '#F0F0F0',
+//     padding: 15,
+//     borderRadius: 8,
+//     alignItems: 'center',
+//     borderWidth: 2,
+//     borderColor: '#E0E0E0',
+//   },
+//   selectedRoleButton: {
+//     backgroundColor: '#4F46E5',
+//     borderColor: '#4F46E5',
+//   },
+//   roleButtonText: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#666',
+//   },
+//   selectedRoleButtonText: {
+//     color: 'white',
+//   },
+//   registerButton: {
+//     backgroundColor: '#4F46E5',
+//     padding: 16,
+//     borderRadius: 8,
+//     alignItems: 'center',
+//   },
+//   disabledButton: {
+//     backgroundColor: '#9CA3AF',
+//   },
+//   registerButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+// });
+
+
+// // Updated app/_layout.tsx - Add missing routes
+// import { Stack } from 'expo-router';
+// import { StatusBar } from 'expo-status-bar';
+// import { useEffect, useState } from 'react';
+// import { StyleSheet, Text, View } from 'react-native';
+
+// export default function RootLayout() {
+//   const [initializing, setInitializing] = useState(true);
+
+//   useEffect(() => {
+//     // Simulate initialization delay
+//     setTimeout(() => {
+//       setInitializing(false);
+//     }, 2000);
+//   }, []);
+
+//   if (initializing) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <Text style={styles.loadingText}>🍽</Text>
+//         <Text style={styles.loadingTitle}>MessApp</Text>
+//         <Text style={styles.loadingSubtitle}>Loading...</Text>
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <>
+//       <StatusBar style="light" backgroundColor="#4F46E5" />
+//       <Stack screenOptions={{ headerShown: false }}>
+//         <Stack.Screen name="index" />
+//         <Stack.Screen name="otp" />
+//         <Stack.Screen name="role-selection" />
+//         <Stack.Screen name="consumer" />
+//         <Stack.Screen name="owner" />
+//         <Stack.Screen name="browse-messes" />
+//         <Stack.Screen name="messDetails" />
+//         <Stack.Screen name="place-order" />
+//         <Stack.Screen name="subscription" />
+//         <Stack.Screen name="my-bookings" />
+//         <Stack.Screen name="owner-orders" />
+//         <Stack.Screen name="settings" />
+//       </Stack>
+//     </>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   loadingContainer: { 
+//     flex: 1, 
+//     justifyContent: 'center', 
+//     alignItems: 'center', 
+//     backgroundColor: '#4F46E5' 
+//   },
+//   loadingText: { fontSize: 60, marginBottom: 20 },
+//   loadingTitle: { 
+//     fontSize: 24, 
+//     fontWeight: 'bold', 
+//     color: 'white', 
+//     marginBottom: 10 
+//   },
+//   loadingSubtitle: { 
+//     fontSize: 16, 
+//     color: 'rgba(255,255,255,0.8)' 
+//   },
+// });
+
+// // app/analytics.tsx
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Dimensions } from 'react-native';
+// import { API, User } from '../utils/api';
+// import { getUserData } from '../utils/storage';
+
+// const { width } = Dimensions.get('window');
+
+// interface AnalyticsData {
+//   orderTrends: {
+//     daily: number[];
+//     weekly: number[];
+//     labels: string[];
+//   };
+//   topItems: Array<{
+//     name: string;
+//     orders: number;
+//     revenue: number;
+//   }>;
+//   customerInsights: {
+//     newCustomers: number;
+//     returningCustomers: number;
+//     averageOrderValue: number;
+//     customerSatisfaction: number;
+//   };
+//   performanceMetrics: {
+//     orderFulfillmentRate: number;
+//     averagePreparationTime: number;
+//     cancelationRate: number;
+//   };
+// }
+
+// export default function AnalyticsPage() {
+//   const [user, setUser] = useState<User | null>(null);
+//   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [selectedPeriod, setSelectedPeriod] = useState<'daily' | 'weekly'>('daily');
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   const loadData = async () => {
+//     try {
+//       const userData = await getUserData();
+//       setUser(userData);
+      
+//       if (userData?._id) {
+//         // Mock data - replace with actual API call
+//         const analyticsData: AnalyticsData = {
+//           orderTrends: {
+//             daily: [12, 19, 8, 25, 22, 18, 15],
+//             weekly: [85, 120, 95, 140, 110, 98, 125],
+//             labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+//           },
+//           topItems: [
+//             { name: 'Chicken Curry', orders: 45, revenue: 13500 },
+//             { name: 'Dal Rice', orders: 38, revenue: 7600 },
+//             { name: 'Biryani', orders: 32, revenue: 12800 },
+//             { name: 'Roti Set', orders: 28, revenue: 5600 }
+//           ],
+//           customerInsights: {
+//             newCustomers: 24,
+//             returningCustomers: 156,
+//             averageOrderValue: 285,
+//             customerSatisfaction: 4.3
+//           },
+//           performanceMetrics: {
+//             orderFulfillmentRate: 94.5,
+//             averagePreparationTime: 28,
+//             cancelationRate: 3.2
+//           }
+//         };
+//         setAnalytics(analyticsData);
+//       }
+//     } catch (error) {
+//       console.error('Error loading analytics data:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="white" />
+//           <Text style={{ color: 'white', marginTop: 20 }}>Loading analytics...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   const currentData = selectedPeriod === 'daily' ? analytics?.orderTrends.daily : analytics?.orderTrends.weekly;
+//   const maxValue = Math.max(...(currentData || [0]));
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView 
+//         style={styles.scrollView} 
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         <View style={styles.content}>
+//           <View style={styles.header}>
+//             <TouchableOpacity 
+//               style={styles.backButton}
+//               onPress={() => router.push('/owner')}
+//             >
+//               <Text style={styles.backButtonText}>← Back</Text>
+//             </TouchableOpacity>
+//             <Text style={styles.title}>📊 Analytics</Text>
+//             <Text style={styles.subtitle}>Business insights and performance</Text>
+//           </View>
+
+//           {/* Order Trends */}
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Order Trends</Text>
+            
+//             <View style={styles.periodSelector}>
+//               <TouchableOpacity 
+//                 style={[styles.periodButton, selectedPeriod === 'daily' && styles.periodButtonActive]}
+//                 onPress={() => setSelectedPeriod('daily')}
+//               >
+//                 <Text style={[styles.periodButtonText, selectedPeriod === 'daily' && styles.periodButtonTextActive]}>
+//                   Daily
+//                 </Text>
+//               </TouchableOpacity>
+//               <TouchableOpacity 
+//                 style={[styles.periodButton, selectedPeriod === 'weekly' && styles.periodButtonActive]}
+//                 onPress={() => setSelectedPeriod('weekly')}
+//               >
+//                 <Text style={[styles.periodButtonText, selectedPeriod === 'weekly' && styles.periodButtonTextActive]}>
+//                   Weekly
+//                 </Text>
+//               </TouchableOpacity>
+//             </View>
+
+//             <View style={styles.chartContainer}>
+//               <View style={styles.chart}>
+//                 {currentData?.map((value, index) => (
+//                   <View key={index} style={styles.barContainer}>
+//                     <View 
+//                       style={[
+//                         styles.bar, 
+//                         { height: (value / maxValue) * 120 }
+//                       ]} 
+//                     />
+//                     <Text style={styles.barValue}>{value}</Text>
+//                     <Text style={styles.barLabel}>{analytics?.orderTrends.labels[index]}</Text>
+//                   </View>
+//                 ))}
+//               </View>
+//             </View>
+//           </View>
+
+//           {/* Top Items */}
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Top Selling Items</Text>
+            
+//             {analytics?.topItems.map((item, index) => (
+//               <View key={index} style={styles.itemCard}>
+//                 <View style={styles.itemRank}>
+//                   <Text style={styles.rankNumber}>{index + 1}</Text>
+//                 </View>
+//                 <View style={styles.itemInfo}>
+//                   <Text style={styles.itemName}>{item.name}</Text>
+//                   <Text style={styles.itemStats}>{item.orders} orders • ₹{item.revenue}</Text>
+//                 </View>
+//                 <View style={styles.itemProgress}>
+//                   <View 
+//                     style={[
+//                       styles.progressBar, 
+//                       { width: `${(item.orders / analytics.topItems[0].orders) * 100}%` }
+//                     ]} 
+//                   />
+//                 </View>
+//               </View>
+//             ))}
+//           </View>
+
+//           {/* Customer Insights */}
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Customer Insights</Text>
+            
+//             <View style={styles.insightGrid}>
+//               <View style={styles.insightCard}>
+//                 <Text style={styles.insightNumber}>{analytics?.customerInsights.newCustomers}</Text>
+//                 <Text style={styles.insightLabel}>New Customers</Text>
+//               </View>
+//               <View style={styles.insightCard}>
+//                 <Text style={styles.insightNumber}>{analytics?.customerInsights.returningCustomers}</Text>
+//                 <Text style={styles.insightLabel}>Returning</Text>
+//               </View>
+//             </View>
+
+//             <View style={styles.insightGrid}>
+//               <View style={styles.insightCard}>
+//                 <Text style={styles.insightNumber}>₹{analytics?.customerInsights.averageOrderValue}</Text>
+//                 <Text style={styles.insightLabel}>Avg Order Value</Text>
+//               </View>
+//               <View style={styles.insightCard}>
+//                 <Text style={styles.insightNumber}>⭐ {analytics?.customerInsights.customerSatisfaction}</Text>
+//                 <Text style={styles.insightLabel}>Satisfaction</Text>
+//               </View>
+//             </View>
+//           </View>
+
+//           {/* Performance Metrics */}
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Performance Metrics</Text>
+            
+//             <View style={styles.metricCard}>
+//               <Text style={styles.metricLabel}>Order Fulfillment Rate</Text>
+//               <View style={styles.metricRow}>
+//                 <View style={[styles.metricBar, { width: `${analytics?.performanceMetrics.orderFulfillmentRate}%` }]} />
+//                 <Text style={styles.metricValue}>{analytics?.performanceMetrics.orderFulfillmentRate}%</Text>
+//               </View>
+//             </View>
+
+//             <View style={styles.metricCard}>
+//               <Text style={styles.metricLabel}>Average Preparation Time</Text>
+//               <View style={styles.metricRow}>
+//                 <Text style={styles.metricValue}>{analytics?.performanceMetrics.averagePreparationTime} mins</Text>
+//               </View>
+//             </View>
+
+//             <View style={styles.metricCard}>
+//               <Text style={styles.metricLabel}>Cancelation Rate</Text>
+//               <View style={styles.metricRow}>
+//                 <View style={[styles.metricBar, styles.metricBarDanger, { width: `${analytics?.performanceMetrics.cancelationRate * 10}%` }]} />
+//                 <Text style={styles.metricValue}>{analytics?.performanceMetrics.cancelationRate}%</Text>
+//               </View>
+//             </View>
+//           </View>
+
+//           {/* Export Options */}
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Export Reports</Text>
+            
+//             <TouchableOpacity style={styles.actionCard}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📄</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Download PDF Report</Text>
+//                 <Text style={styles.actionSubtitle}>Get detailed analytics report</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📊</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Export to Excel</Text>
+//                 <Text style={styles.actionSubtitle}>Raw data for analysis</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   scrollView: {
+//     flex: 1,
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     paddingBottom: 40,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 20,
+//     marginBottom: 25,
+//   },
+//   title: {
+//     fontSize: 26,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   backButton: {
+//     position: 'absolute',
+//     left: 0,
+//     top: 0,
+//     paddingVertical: 8,
+//     paddingHorizontal: 16,
+//     borderRadius: 20,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   section: {
+//     backgroundColor: 'white',
+//     borderRadius: 20,
+//     padding: 25,
+//     marginBottom: 20,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 8,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 16,
+//     elevation: 8,
+//   },
+//   sectionTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 20,
+//     textAlign: 'center',
+//   },
+//   periodSelector: {
+//     flexDirection: 'row',
+//     backgroundColor: '#F1F5F9',
+//     borderRadius: 12,
+//     padding: 4,
+//     marginBottom: 20,
+//   },
+//   periodButton: {
+//     flex: 1,
+//     paddingVertical: 10,
+//     paddingHorizontal: 20,
+//     borderRadius: 8,
+//     alignItems: 'center',
+//   },
+//   periodButtonActive: {
+//     backgroundColor: '#4F46E5',
+//   },
+//   periodButtonText: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#64748B',
+//   },
+//   periodButtonTextActive: {
+//     color: 'white',
+//   },
+//   chartContainer: {
+//     alignItems: 'center',
+//   },
+//   chart: {
+//     flexDirection: 'row',
+//     alignItems: 'flex-end',
+//     justifyContent: 'space-between',
+//     width: '100%',
+//     height: 160,
+//     paddingHorizontal: 10,
+//   },
+//   barContainer: {
+//     alignItems: 'center',
+//     flex: 1,
+//   },
+//   bar: {
+//     backgroundColor: '#4F46E5',
+//     width: 20,
+//     borderRadius: 4,
+//     marginBottom: 5,
+//   },
+//   barValue: {
+//     fontSize: 12,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 5,
+//   },
+//   barLabel: {
+//     fontSize: 11,
+//     color: '#64748B',
+//   },
+//   itemCard: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: '#F8FAFC',
+//     padding: 16,
+//     borderRadius: 12,
+//     marginBottom: 12,
+//   },
+//   itemRank: {
+//     width: 32,
+//     height: 32,
+//     borderRadius: 16,
+//     backgroundColor: '#4F46E5',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 15,
+//   },
+//   rankNumber: {
+//     color: 'white',
+//     fontWeight: 'bold',
+//     fontSize: 14,
+//   },
+//   itemInfo: {
+//     flex: 1,
+//   },
+//   itemName: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   itemStats: {
+//     fontSize: 14,
+//     color: '#64748B',
+//   },
+//   itemProgress: {
+//     width: 60,
+//     height: 4,
+//     backgroundColor: '#E2E8F0',
+//     borderRadius: 2,
+//     marginLeft: 15,
+//   },
+//   progressBar: {
+//     height: '100%',
+//     backgroundColor: '#10B981',
+//     borderRadius: 2,
+//   },
+//   insightGrid: {
+//     flexDirection: 'row',
+//     gap: 15,
+//     marginBottom: 15,
+//   },
+//   insightCard: {
+//     flex: 1,
+//     backgroundColor: '#F8FAFC',
+//     padding: 16,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//   },
+//   insightNumber: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 5,
+//   },
+//   insightLabel: {
+//     fontSize: 12,
+//     color: '#64748B',
+//     textAlign: 'center',
+//   },
+//   metricCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 16,
+//     borderRadius: 12,
+//     marginBottom: 12,
+//   },
+//   metricLabel: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 10,
+//   },
+//   metricRow: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   metricBar: {
+//     height: 6,
+//     backgroundColor: '#10B981',
+//     borderRadius: 3,
+//     flex: 1,
+//     marginRight: 10,
+//   },
+//   metricBarDanger: {
+//     backgroundColor: '#EF4444',
+//   },
+//   metricValue: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     minWidth: 60,
+//     textAlign: 'right',
+//   },
+//   actionCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//   },
+//   actionIcon: {
+//     width: 50,
+//     height: 50,
+//     borderRadius: 12,
+//     backgroundColor: 'white',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 15,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   actionEmoji: {
+//     fontSize: 24,
+//   },
+//   actionContent: {
+//     flex: 1,
+//   },
+//   actionTitle: {
+//     fontSize: 17,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   actionSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//     lineHeight: 18,
+//   },
+//   actionArrow: {
+//     fontSize: 18,
+//     color: '#4F46E5',
+//     fontWeight: 'bold',
+//   },
+// });
+
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+// import { API, Mess } from '../utils/api';
+// import MessCard from '../components/MessCard';
+
+// export default function BrowseMessesScreen() {
+//   const [messes, setMesses] = useState<Mess[]>([]);
+//   const [filteredMesses, setFilteredMesses] = useState<Mess[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [selectedFilter, setSelectedFilter] = useState<'all' | 'veg' | 'non-veg' | 'both'>('all');
+
+//   useEffect(() => {
+//     loadMesses();
+//   }, []);
+
+//   useEffect(() => {
+//     filterMesses();
+//   }, [searchQuery, selectedFilter, messes]);
+
+//   const loadMesses = async () => {
+//     try {
+//       const messesData = await API.getMesses();
+//       setMesses(messesData);
+//     } catch (error) {
+//       console.error('Error loading messes:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadMesses();
+//     setRefreshing(false);
+//   };
+
+//   const filterMesses = () => {
+//     let filtered = messes;
+
+//     // Filter by search query
+//     if (searchQuery.trim()) {
+//       filtered = filtered.filter(mess =>
+//         mess.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//         mess.address.city.toLowerCase().includes(searchQuery.toLowerCase())
+//       );
+//     }
+
+//     // Filter by food type
+//     if (selectedFilter !== 'all') {
+//       filtered = filtered.filter(mess => mess.foodType === selectedFilter);
+//     }
+
+//     setFilteredMesses(filtered);
+//   };
+
+//   const handleMessPress = (mess: Mess) => {
+//     router.push({ pathname: './mess-details', params: { messId: mess._id } });
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="white" />
+//           <Text style={{ color: 'white', marginTop: 20 }}>Loading messes...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => router.push('/consumer')} style={styles.backButton}>
+//           <Text style={styles.backText}>← Back</Text>
+//         </TouchableOpacity>
+//         <Text style={styles.title}>Browse Messes</Text>
+//       </View>
+
+//       <View style={styles.content}>
+//         <View style={styles.searchContainer}>
+//           <TextInput
+//             style={styles.searchInput}
+//             placeholder="Search messes by name or city..."
+//             value={searchQuery}
+//             onChangeText={setSearchQuery}
+//             placeholderTextColor="#666"
+//           />
+//         </View>
+
+//         <View style={styles.filterContainer}>
+//           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+//             {['all', 'veg', 'non-veg', 'both'].map((filter) => (
+//               <TouchableOpacity
+//                 key={filter}
+//                 style={[
+//                   styles.filterChip,
+//                   selectedFilter === filter && styles.activeFilterChip
+//                 ]}
+//                 onPress={() => setSelectedFilter(filter as any)}
+//               >
+//                 <Text style={[
+//                   styles.filterText,
+//                   selectedFilter === filter && styles.activeFilterText
+//                 ]}>
+//                   {filter === 'all' ? 'All' : filter === 'non-veg' ? 'Non-Veg' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+//                 </Text>
+//               </TouchableOpacity>
+//             ))}
+//           </ScrollView>
+//         </View>
+
+//         <ScrollView
+//           style={styles.messesContainer}
+//           showsVerticalScrollIndicator={false}
+//           refreshControl={
+//             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//           }
+//         >
+//           <Text style={styles.resultsText}>
+//             {filteredMesses.length} messes found
+//           </Text>
+
+//           {filteredMesses.map((mess) => (
+//             <MessCard
+//               key={mess._id}
+//               mess={mess}
+//               onPress={() => handleMessPress(mess)}
+//             />
+//           ))}
+
+//           {filteredMesses.length === 0 && (
+//             <View style={styles.emptyState}>
+//               <Text style={styles.emptyStateText}>No messes found</Text>
+//               <Text style={styles.emptyStateSubtext}>
+//                 Try adjusting your search or filters
+//               </Text>
+//             </View>
+//           )}
+//         </ScrollView>
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     justifyContent: 'space-between',
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     padding: 20,
+//     paddingTop: 40,
+//   },
+//   backButton: {
+//     padding: 8,
+//   },
+//   backText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   title: {
+//     flex: 1,
+//     fontSize: 32,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     textAlign: 'center',
+//     marginRight: 40,
+//   },
+//   searchContainer: {
+//     marginBottom: 15,
+//   },
+//   searchInput: {
+//     backgroundColor: 'white',
+//     borderRadius: 12,
+//     paddingHorizontal: 16,
+//     paddingVertical: 12,
+//     fontSize: 16,
+//     color: '#333',
+//   },
+//   filterContainer: {
+//     marginBottom: 20,
+//   },
+//   filterChip: {
+//     backgroundColor: 'rgba(255,255,255,0.2)',
+//     borderRadius: 20,
+//     paddingHorizontal: 16,
+//     paddingVertical: 8,
+//     marginRight: 10,
+//   },
+//   activeFilterChip: {
+//     backgroundColor: 'white',
+//   },
+//   filterText: {
+//     color: 'white',
+//     fontSize: 14,
+//     fontWeight: '500',
+//   },
+//   activeFilterText: {
+//     color: '#4F46E5',
+//   },
+//   messesContainer: {
+//     flex: 1,
+//     backgroundColor: 'white',
+//     borderTopLeftRadius: 24,
+//     borderTopRightRadius: 24,
+//     padding: 20,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 10 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 20,
+//     elevation: 8,
+//   },
+//   resultsText: {
+//     fontSize: 18,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 16,
+//   },
+//   emptyState: {
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingVertical: 60,
+//   },
+//   emptyStateText: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#666',
+//     marginBottom: 8,
+//   },
+//   emptyStateSubtext: {
+//     fontSize: 14,
+//     color: '#9CA3AF',
+//     textAlign: 'center',
+//   },
+// });
+
+
+// //app/consumer.tsx
+// import { router } from 'expo-router';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// export default function ConsumerDashboard() {
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+//         <View style={styles.content}>
+//           <View style={styles.header}>
+//             <Text style={styles.emoji}>👤</Text>
+//             <Text style={styles.title}>Consumer Dashboard</Text>
+//             <Text style={styles.subtitle}>Welcome to MessApp!</Text>
+//           </View>
+
+//           <View style={styles.welcomeCard}>
+//             <Text style={styles.welcomeTitle}>Good to see you!</Text>
+//             <Text style={styles.welcomeText}>
+//               Discover the best mess services in your area and enjoy delicious, 
+//               homemade meals delivered fresh to your doorstep.
+//             </Text>
+//           </View>
+
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Quick Actions</Text>
+            
+//             <TouchableOpacity
+//   style={[styles.actionCard, styles.primaryCard]}
+//   onPress={() => router.push('/browse-messes')}
+// >
+//   <View style={styles.actionIcon}>
+//     <Text style={styles.actionEmoji}>🍽️</Text>
+//   </View>
+//   <View style={styles.actionContent}>
+//     <Text style={styles.actionTitle}>Browse Mess Options</Text>
+//     <Text style={styles.actionSubtitle}>Find local mess services near you</Text>
+//   </View>
+//   <Text style={styles.actionArrow}>→</Text>
+// </TouchableOpacity>
+//             <TouchableOpacity style={styles.actionCard} 
+//             onPress={() => router.push('/view-menus')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📋</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>View Menus</Text>
+//                 <Text style={styles.actionSubtitle}>Check today's meal options</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard} 
+//               onPress={() => router.push('/my-bookings')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📅</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>My Bookings</Text>
+//                 <Text style={styles.actionSubtitle}>View your meal bookings</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.push('/reviews-ratings')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>⭐</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Reviews & Ratings</Text>
+//                 <Text style={styles.actionSubtitle}>Rate your meal experience</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+//           </View>
+
+//           <TouchableOpacity 
+//             style={styles.backButton}
+//             onPress={() => router.replace('/role-selection')}
+//           >
+//             <Text style={styles.backButtonText}>← Back to Role Selection</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   scrollView: {
+//     flex: 1,
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     paddingBottom: 40,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 20,
+//     marginBottom: 30,
+//   },
+//   emoji: {
+//     fontSize: 70,
+//     marginBottom: 20,
+//     textShadowColor: 'rgba(0,0,0,0.1)',
+//     textShadowOffset: { width: 0, height: 2 },
+//     textShadowRadius: 4,
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   welcomeCard: {
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderRadius: 16,
+//     padding: 20,
+//     marginBottom: 30,
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.2)',
+//   },
+//   welcomeTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//   },
+//   welcomeText: {
+//     fontSize: 14,
+//     color: 'rgba(255,255,255,0.9)',
+//     lineHeight: 20,
+//   },
+//   section: {
+//     backgroundColor: 'white',
+//     borderRadius: 20,
+//     padding: 25,
+//     marginBottom: 30,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 8,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 16,
+//     elevation: 8,
+//   },
+//   sectionTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 20,
+//     textAlign: 'center',
+//   },
+//   actionCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.05,
+//     shadowRadius: 8,
+//     elevation: 2,
+//   },
+//   primaryCard: {
+//     backgroundColor: '#EEF2FF',
+//     borderColor: '#C7D2FE',
+//   },
+//   actionIcon: {
+//     width: 50,
+//     height: 50,
+//     borderRadius: 12,
+//     backgroundColor: 'white',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 15,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   actionEmoji: {
+//     fontSize: 24,
+//   },
+//   actionContent: {
+//     flex: 1,
+//   },
+//   actionTitle: {
+//     fontSize: 17,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   actionSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//     lineHeight: 18,
+//   },
+//   actionArrow: {
+//     fontSize: 18,
+//     color: '#4F46E5',
+//     fontWeight: 'bold',
+//   },
+//   backButton: {
+//     alignSelf: 'center',
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     borderRadius: 25,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.3)',
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//     textAlign: 'center',
+//   },
+// });
+
+// // app/earnings.tsx
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl } from 'react-native';
+// import { API, User } from '../utils/api';
+// import { getUserData } from '../utils/storage';
+
+// interface EarningsData {
+//   todayEarnings: number;
+//   weeklyEarnings: number;
+//   monthlyEarnings: number;
+//   totalEarnings: number;
+//   pendingPayments: number;
+//   recentTransactions: Array<{
+//     _id: string;
+//     amount: number;
+//     date: string;
+//     status: 'completed' | 'pending' | 'failed';
+//     orderId: string;
+//   }>;
+// }
+
+// export default function EarningsPage() {
+//   const [user, setUser] = useState<User | null>(null);
+//   const [earnings, setEarnings] = useState<EarningsData | null>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   const loadData = async () => {
+//     try {
+//       const userData = await getUserData();
+//       setUser(userData);
+      
+//       if (userData?._id) {
+//         // Mock data - replace with actual API call
+//         const earningsData: EarningsData = {
+//           todayEarnings: 2500,
+//           weeklyEarnings: 15800,
+//           monthlyEarnings: 68500,
+//           totalEarnings: 245000,
+//           pendingPayments: 3200,
+//           recentTransactions: [
+//             { _id: '1', amount: 450, date: '2024-01-15', status: 'completed', orderId: 'ORD001' },
+//             { _id: '2', amount: 320, date: '2024-01-14', status: 'pending', orderId: 'ORD002' },
+//             { _id: '3', amount: 780, date: '2024-01-14', status: 'completed', orderId: 'ORD003' },
+//           ]
+//         };
+//         setEarnings(earningsData);
+//       }
+//     } catch (error) {
+//       console.error('Error loading earnings data:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   const getStatusColor = (status: string) => {
+//     switch (status) {
+//       case 'completed': return '#10B981';
+//       case 'pending': return '#F59E0B';
+//       case 'failed': return '#EF4444';
+//       default: return '#6B7280';
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="white" />
+//           <Text style={{ color: 'white', marginTop: 20 }}>Loading earnings...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView 
+//         style={styles.scrollView} 
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         <View style={styles.content}>
+//           <View style={styles.header}>
+//             <TouchableOpacity 
+//               style={styles.backButton}
+//               onPress={() => router.back()}
+//             >
+//               <Text style={styles.backButtonText}>← Back</Text>
+//             </TouchableOpacity>
+//             <Text style={styles.title}>💰 Earnings</Text>
+//             <Text style={styles.subtitle}>Track your revenue and payments</Text>
+//           </View>
+
+//           <View style={styles.statsContainer}>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>₹{earnings?.todayEarnings || 0}</Text>
+//               <Text style={styles.statLabel}>Today</Text>
+//             </View>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>₹{earnings?.weeklyEarnings || 0}</Text>
+//               <Text style={styles.statLabel}>This Week</Text>
+//             </View>
+//           </View>
+
+//           <View style={styles.statsContainer}>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>₹{earnings?.monthlyEarnings || 0}</Text>
+//               <Text style={styles.statLabel}>This Month</Text>
+//             </View>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>₹{earnings?.totalEarnings || 0}</Text>
+//               <Text style={styles.statLabel}>Total Earnings</Text>
+//             </View>
+//           </View>
+
+//           <View style={[styles.section, styles.pendingSection]}>
+//             <Text style={styles.pendingTitle}>Pending Payments</Text>
+//             <Text style={styles.pendingAmount}>₹{earnings?.pendingPayments || 0}</Text>
+//             <Text style={styles.pendingSubtitle}>Will be processed within 2-3 business days</Text>
+//           </View>
+
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            
+//             {earnings?.recentTransactions.map((transaction) => (
+//               <View key={transaction._id} style={styles.transactionCard}>
+//                 <View style={styles.transactionInfo}>
+//                   <Text style={styles.transactionAmount}>₹{transaction.amount}</Text>
+//                   <Text style={styles.transactionOrder}>Order #{transaction.orderId}</Text>
+//                   <Text style={styles.transactionDate}>{transaction.date}</Text>
+//                 </View>
+//                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(transaction.status) }]}>
+//                   <Text style={styles.statusText}>{transaction.status}</Text>
+//                 </View>
+//               </View>
+//             ))}
+
+//             <TouchableOpacity style={styles.viewAllButton}>
+//               <Text style={styles.viewAllText}>View All Transactions</Text>
+//             </TouchableOpacity>
+//           </View>
+
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Payment Methods</Text>
+            
+//             <TouchableOpacity style={styles.actionCard}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>🏦</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Bank Account</Text>
+//                 <Text style={styles.actionSubtitle}>Update your bank details</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>💳</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>UPI Settings</Text>
+//                 <Text style={styles.actionSubtitle}>Manage UPI payment methods</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   scrollView: {
+//     flex: 1,
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     paddingBottom: 40,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 20,
+//     marginBottom: 25,
+//   },
+//   title: {
+//     fontSize: 26,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   backButton: {
+//     position: 'absolute',
+//     left: 0,
+//     top: 0,
+//     paddingVertical: 8,
+//     paddingHorizontal: 16,
+//     borderRadius: 20,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   statsContainer: {
+//     flexDirection: 'row',
+//     gap: 15,
+//     marginBottom: 25,
+//   },
+//   statCard: {
+//     flex: 1,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderRadius: 16,
+//     padding: 20,
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.2)',
+//   },
+//   statNumber: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 5,
+//   },
+//   statLabel: {
+//     fontSize: 14,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   section: {
+//     backgroundColor: 'white',
+//     borderRadius: 20,
+//     padding: 25,
+//     marginBottom: 20,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 8,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 16,
+//     elevation: 8,
+//   },
+//   pendingSection: {
+//     backgroundColor: '#FEF3C7',
+//     borderWidth: 2,
+//     borderColor: '#FDE68A',
+//     alignItems: 'center',
+//   },
+//   pendingTitle: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#92400E',
+//     marginBottom: 10,
+//   },
+//   pendingAmount: {
+//     fontSize: 32,
+//     fontWeight: 'bold',
+//     color: '#92400E',
+//     marginBottom: 5,
+//   },
+//   pendingSubtitle: {
+//     fontSize: 14,
+//     color: '#A16207',
+//     textAlign: 'center',
+//   },
+//   sectionTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 20,
+//     textAlign: 'center',
+//   },
+//   transactionCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'space-between',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//   },
+//   transactionInfo: {
+//     flex: 1,
+//   },
+//   transactionAmount: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   transactionOrder: {
+//     fontSize: 14,
+//     color: '#666',
+//     marginBottom: 2,
+//   },
+//   transactionDate: {
+//     fontSize: 12,
+//     color: '#999',
+//   },
+//   statusBadge: {
+//     paddingHorizontal: 12,
+//     paddingVertical: 6,
+//     borderRadius: 20,
+//   },
+//   statusText: {
+//     color: 'white',
+//     fontSize: 12,
+//     fontWeight: '600',
+//     textTransform: 'capitalize',
+//   },
+//   viewAllButton: {
+//     backgroundColor: '#4F46E5',
+//     padding: 16,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//     marginTop: 10,
+//   },
+//   viewAllText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   actionCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//   },
+//   actionIcon: {
+//     width: 50,
+//     height: 50,
+//     borderRadius: 12,
+//     backgroundColor: 'white',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 15,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   actionEmoji: {
+//     fontSize: 24,
+//   },
+//   actionContent: {
+//     flex: 1,
+//   },
+//   actionTitle: {
+//     fontSize: 17,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   actionSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//     lineHeight: 18,
+//   },
+//   actionArrow: {
+//     fontSize: 18,
+//     color: '#4F46E5',
+//     fontWeight: 'bold',
+//   },
+// });
+
+// // app/index.tsx
+// import { router } from 'expo-router';
+// import { useState } from 'react';
+// import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+// import PhoneInput from '../components/PhoneInput';
+// import { API } from '../utils/api';
+// import { saveUserData } from '../utils/storage';
+
+// export default function PhoneScreen() {
+//   const [phoneNumber, setPhoneNumber] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   const validatePhoneNumber = (number: string): boolean => {
+//     if (!number || number.trim() === '') return false;
+//     if (number.length !== 10) return false;
+//     if (!/^\d+$/.test(number)) return false;
+//     if (number.startsWith('0')) return false;
+//     return true;
+//   };
+
+//   const handleNext = async () => {
+//     const trimmedNumber = phoneNumber.trim();
+
+//     if (!validatePhoneNumber(trimmedNumber)) {
+//       Alert.alert('Invalid Number', 'Please enter a valid 10-digit mobile number (without 0 at start).');
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+//       const formattedPhone = `+91${trimmedNumber}`;
+      
+//       // Check if user exists in backend
+//       try {
+//         const existingUser = await API.getUser(formattedPhone);
+//         if (existingUser) {
+//           await saveUserData(existingUser);
+//           // User exists, go directly to role selection or their dashboard
+//           router.push({ pathname: '/otp', params: { phone: formattedPhone, userExists: 'true' } });
+//           return;
+//         }
+//       } catch (error) {
+//         // User doesn't exist, proceed with OTP verification for new user
+//       }
+
+//       // Simulate sending OTP
+//       setTimeout(() => {
+//         setLoading(false);
+//         router.push({ pathname: '/otp', params: { phone: formattedPhone, userExists: 'false' } });
+//       }, 1000);
+//     } catch (error: any) {
+//       console.error('Phone verification error:', error);
+//       Alert.alert('Error', 'Failed to process phone number. Please try again.');
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.content}>
+//         <View style={styles.header}>
+//           <Text style={styles.emoji}>🍽</Text>
+//           <Text style={styles.title}>MessApp</Text>
+//           <Text style={styles.subtitle}>Connect with local mess services</Text>
+//         </View>
+
+//         <View style={styles.inputSection}>
+//           <Text style={styles.inputTitle}>Enter Mobile Number</Text>
+//           <Text style={styles.inputSubtitle}>We'll send you a verification code</Text>
+
+//           <PhoneInput 
+//             value={phoneNumber} 
+//             onChangeText={setPhoneNumber} 
+//             placeholder="9876543210" 
+//           />
+
+//           <TouchableOpacity 
+//             style={[styles.button, loading && styles.buttonDisabled]} 
+//             onPress={handleNext} 
+//             disabled={loading}
+//           >
+//             {loading ? (
+//               <ActivityIndicator color="white" />
+//             ) : (
+//               <Text style={styles.buttonText}>Send OTP</Text>
+//             )}
+//           </TouchableOpacity>
+//         </View>
+
+//         <View style={styles.footer}>
+//           <Text style={styles.footerText}>
+//             By continuing, you agree to our Terms of Service and Privacy Policy
+//           </Text>
+//         </View>
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: '#4F46E5' },
+//   content: { flex: 1, padding: 20 },
+//   header: { alignItems: 'center', marginTop: 60, marginBottom: 60 },
+//   emoji: { fontSize: 80, marginBottom: 20 },
+//   title: { fontSize: 32, fontWeight: 'bold', color: 'white', marginBottom: 10 },
+//   subtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', textAlign: 'center' },
+//   inputSection: { backgroundColor: 'white', borderRadius: 20, padding: 30, marginBottom: 40 },
+//   inputTitle: { fontSize: 22, fontWeight: 'bold', color: '#333', textAlign: 'center', marginBottom: 10 },
+//   inputSubtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 30 },
+//   button: { backgroundColor: '#4F46E5', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 20 },
+//   buttonDisabled: { opacity: 0.6 },
+//   buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+//   footer: { flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
+//   footerText: { color: 'rgba(255,255,255,0.6)', fontSize: 12, textAlign: 'center', lineHeight: 18 },
+// });
+
+// // app/mess-details.tsx
+// import { router, useLocalSearchParams } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import {
+//   SafeAreaView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   TouchableOpacity,
+//   View,
+//   ActivityIndicator,
+//   RefreshControl,
+//   Alert,
+// } from 'react-native';
+// import { API, Mess } from '../utils/api';
+
+// interface MenuItem {
+//   _id: string;
+//   name: string;
+//   description?: string;
+//   price: number;
+//   isVeg: boolean;
+//   category: string;
+// }
+
+// interface Menu {
+//   _id: string;
+//   date: string;
+//   mealType: 'breakfast' | 'lunch' | 'dinner';
+//   items: MenuItem[];
+// }
+
+// export default function ViewMenusScreen() {
+//   const { messId } = useLocalSearchParams<{ messId: string }>();
+//   const [mess, setMess] = useState<Mess | null>(null);
+//   const [menus, setMenus] = useState<Menu[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+//   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner'>('lunch');
+
+//   useEffect(() => {
+//     if (messId) {
+//       loadData();
+//     }
+//   }, [messId]);
+
+//   const loadData = async () => {
+//     try {
+//       if (!messId) return;
+
+//       const [messData, menusData] = await Promise.all([
+//         API.getMess(messId),
+//         API.getMenus(messId, selectedDate)
+//       ]);
+
+//       setMess(messData);
+//       setMenus(menusData || []);
+//     } catch (error) {
+//       console.error('Error loading menu data:', error);
+//       Alert.alert('Error', 'Failed to load menu information');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   const getCurrentMenu = () => {
+//     return menus.find(menu => 
+//       menu.date === selectedDate && menu.mealType === selectedMealType
+//     );
+//   };
+
+//   const handleOrderMeal = (menu: Menu) => {
+//     Alert.alert(
+//       'Order Meal',
+//       `Would you like to order ${selectedMealType} for ${new Date(selectedDate).toLocaleDateString()}?`,
+//       [
+//         { text: 'Cancel', style: 'cancel' },
+//         { 
+//           text: 'Order Now', 
+//           onPress: () => {
+//             // Navigate to order placement or handle order logic
+//             router.push({
+//               pathname: '/place-order',
+//               params: {
+//                 messId,
+//                 menuId: menu._id,
+//                 mealType: selectedMealType,
+//                 date: selectedDate
+//               }
+//             });
+//           }
+//         }
+//       ]
+//     );
+//   };
+
+//   const getNextDates = (days: number = 7) => {
+//     const dates = [];
+//     for (let i = 0; i < days; i++) {
+//       const date = new Date();
+//       date.setDate(date.getDate() + i);
+//       dates.push({
+//         value: date.toISOString().split('T')[0],
+//         label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+//       });
+//     }
+//     return dates;
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="#4F46E5" />
+//           <Text style={{ marginTop: 20 }}>Loading menu...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   const currentMenu = getCurrentMenu();
+//   const dates = getNextDates();
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+//           <Text style={styles.backText}>← Back</Text>
+//         </TouchableOpacity>
+//         <Text style={styles.title}>View Menus</Text>
+//       </View>
+
+//       <ScrollView
+//         style={styles.content}
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         {mess && (
+//           <View style={styles.messInfo}>
+//             <Text style={styles.messName}>{mess.name}</Text>
+//             <Text style={styles.messAddress}>{mess.address.city}</Text>
+//             <View style={styles.messTags}>
+//               <View style={[styles.tag, { backgroundColor: mess.foodType === 'veg' ? '#10B981' : mess.foodType === 'non-veg' ? '#EF4444' : '#8B5CF6' }]}>
+//                 <Text style={styles.tagText}>{mess.foodType}</Text>
+//               </View>
+//               <View style={styles.tag}>
+//                 <Text style={styles.tagText}>⭐ {mess.rating}</Text>
+//               </View>
+//             </View>
+//           </View>
+//         )}
+
+//         <View style={styles.section}>
+//           <Text style={styles.sectionTitle}>Select Date</Text>
+//           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateScroll}>
+//             {dates.map((date) => (
+//               <TouchableOpacity
+//                 key={date.value}
+//                 style={[
+//                   styles.dateChip,
+//                   selectedDate === date.value && styles.activeDateChip
+//                 ]}
+//                 onPress={() => setSelectedDate(date.value)}
+//               >
+//                 <Text style={[
+//                   styles.dateText,
+//                   selectedDate === date.value && styles.activeDateText
+//                 ]}>
+//                   {date.label}
+//                 </Text>
+//               </TouchableOpacity>
+//             ))}
+//           </ScrollView>
+//         </View>
+
+//         <View style={styles.section}>
+//           <Text style={styles.sectionTitle}>Meal Type</Text>
+//           <View style={styles.mealTypeContainer}>
+//             {['breakfast', 'lunch', 'dinner'].map((mealType) => (
+//               <TouchableOpacity
+//                 key={mealType}
+//                 style={[
+//                   styles.mealTypeChip,
+//                   selectedMealType === mealType && styles.activeMealTypeChip
+//                 ]}
+//                 onPress={() => setSelectedMealType(mealType as any)}
+//               >
+//                 <Text style={[
+//                   styles.mealTypeText,
+//                   selectedMealType === mealType && styles.activeMealTypeText
+//                 ]}>
+//                   {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+//                 </Text>
+//               </TouchableOpacity>
+//             ))}
+//           </View>
+//         </View>
+
+//         <View style={styles.menuSection}>
+//           <View style={styles.menuHeader}>
+//             <Text style={styles.menuTitle}>
+//               {selectedMealType.charAt(0).toUpperCase() + selectedMealType.slice(1)} Menu
+//             </Text>
+//             <Text style={styles.menuDate}>
+//               {new Date(selectedDate).toLocaleDateString('en-US', { 
+//                 weekday: 'long', 
+//                 month: 'long', 
+//                 day: 'numeric' 
+//               })}
+//             </Text>
+//           </View>
+
+//           {currentMenu ? (
+//             <View>
+//               {currentMenu.items.map((item) => (
+//                 <View key={item._id} style={styles.menuItem}>
+//                   <View style={styles.itemInfo}>
+//                     <View style={styles.itemHeader}>
+//                       <Text style={styles.itemName}>{item.name}</Text>
+//                       <View style={[styles.vegIndicator, { backgroundColor: item.isVeg ? '#10B981' : '#EF4444' }]} />
+//                     </View>
+//                     {item.description && (
+//                       <Text style={styles.itemDescription}>{item.description}</Text>
+//                     )}
+//                     <Text style={styles.itemCategory}>{item.category}</Text>
+//                   </View>
+//                   <Text style={styles.itemPrice}>₹{item.price}</Text>
+//                 </View>
+//               ))}
+
+//               <TouchableOpacity
+//                 style={styles.orderButton}
+//                 onPress={() => handleOrderMeal(currentMenu)}
+//               >
+//                 <Text style={styles.orderButtonText}>
+//                   Order {selectedMealType.charAt(0).toUpperCase() + selectedMealType.slice(1)}
+//                 </Text>
+//               </TouchableOpacity>
+//             </View>
+//           ) : (
+//             <View style={styles.noMenuContainer}>
+//               <Text style={styles.noMenuText}>No menu available</Text>
+//               <Text style={styles.noMenuSubtext}>
+//                 Menu for {selectedMealType} on {new Date(selectedDate).toLocaleDateString()} is not available yet.
+//               </Text>
+//             </View>
+//           )}
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: 'white',
+//   },
+//   content: {
+//     flex: 1,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     padding: 20,
+//     paddingTop: 40,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F3F4F6',
+//   },
+//   backButton: {
+//     padding: 8,
+//   },
+//   backText: {
+//     color: '#4F46E5',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   title: {
+//     flex: 1,
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     textAlign: 'center',
+//     marginRight: 40,
+//   },
+//   messInfo: {
+//     padding: 20,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F3F4F6',
+//   },
+//   messName: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     marginBottom: 4,
+//   },
+//   messAddress: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   messTags: {
+//     flexDirection: 'row',
+//     gap: 8,
+//   },
+//   tag: {
+//     backgroundColor: '#F3F4F6',
+//     paddingHorizontal: 8,
+//     paddingVertical: 4,
+//     borderRadius: 12,
+//   },
+//   tagText: {
+//     fontSize: 12,
+//     color: 'white',
+//     fontWeight: '500',
+//   },
+//   section: {
+//     padding: 20,
+//   },
+//   sectionTitle: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     marginBottom: 12,
+//   },
+//   dateScroll: {
+//     marginBottom: 8,
+//   },
+//   dateChip: {
+//     backgroundColor: '#F3F4F6',
+//     paddingHorizontal: 16,
+//     paddingVertical: 8,
+//     borderRadius: 20,
+//     marginRight: 8,
+//   },
+//   activeDateChip: {
+//     backgroundColor: '#4F46E5',
+//   },
+//   dateText: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     fontWeight: '500',
+//   },
+//   activeDateText: {
+//     color: 'white',
+//   },
+//   mealTypeContainer: {
+//     flexDirection: 'row',
+//     gap: 8,
+//   },
+//   mealTypeChip: {
+//     flex: 1,
+//     backgroundColor: '#F3F4F6',
+//     paddingVertical: 12,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//   },
+//   activeMealTypeChip: {
+//     backgroundColor: '#4F46E5',
+//   },
+//   mealTypeText: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     fontWeight: '500',
+//   },
+//   activeMealTypeText: {
+//     color: 'white',
+//   },
+//   menuSection: {
+//     padding: 20,
+//   },
+//   menuHeader: {
+//     marginBottom: 16,
+//   },
+//   menuTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     marginBottom: 4,
+//   },
+//   menuDate: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//   },
+//   menuItem: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'flex-start',
+//     paddingVertical: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F3F4F6',
+//   },
+//   itemInfo: {
+//     flex: 1,
+//     paddingRight: 12,
+//   },
+//   itemHeader: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginBottom: 4,
+//   },
+//   itemName: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#111827',
+//     flex: 1,
+//   },
+//   vegIndicator: {
+//     width: 12,
+//     height: 12,
+//     borderRadius: 6,
+//     marginLeft: 8,
+//   },
+//   itemDescription: {
+//     fontSize: 13,
+//     color: '#6B7280',
+//     marginBottom: 4,
+//   },
+//   itemCategory: {
+//     fontSize: 12,
+//     color: '#9CA3AF',
+//     textTransform: 'uppercase',
+//     fontWeight: '500',
+//   },
+//   itemPrice: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#4F46E5',
+//   },
+//   orderButton: {
+//     backgroundColor: '#4F46E5',
+//     paddingVertical: 16,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//     marginTop: 20,
+//   },
+//   orderButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+//   noMenuContainer: {
+//     alignItems: 'center',
+//     paddingVertical: 40,
+//   },
+//   noMenuText: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   noMenuSubtext: {
+//     fontSize: 14,
+//     color: '#9CA3AF',
+//     textAlign: 'center',
+//     lineHeight: 20,
+//   },
+// });
+
+// // app/my-bookings.tsx
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import {
+//   SafeAreaView,
+//   ScrollView,
+//   StyleSheet,
+//   Text,
+//   TouchableOpacity,
+//   View,
+//   ActivityIndicator,
+//   RefreshControl,
+//   Alert,
+// } from 'react-native';
+// import { API, Order } from '../utils/api';
+// import { getUserData } from '../utils/storage';
+
+// export default function MyBookingsScreen() {
+//   const [user, setUser] = useState<any>(null);
+//   const [orders, setOrders] = useState<Order[]>([]);
+//   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [activeTab, setActiveTab] = useState<'orders' | 'subscriptions'>('orders');
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   const loadData = async () => {
+//     try {
+//       const userData = await getUserData();
+//       setUser(userData);
+
+//       if (userData?._id) {
+//         const [ordersData, subscriptionsData] = await Promise.all([
+//           API.getOrders({ customerId: userData._id }),
+//           API.getUserSubscriptions(userData._id),
+//         ]);
+
+//         setOrders(ordersData.orders || []);
+//         setSubscriptions(subscriptionsData || []);
+//       }
+//     } catch (error) {
+//       console.error('Error loading bookings:', error);
+//       Alert.alert('Error', 'Failed to load your bookings');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   const getStatusColor = (status: string) => {
+//     switch (status.toLowerCase()) {
+//       case 'pending': return '#F59E0B';
+//       case 'confirmed': return '#3B82F6';
+//       case 'preparing': return '#8B5CF6';
+//       case 'ready': return '#10B981';
+//       case 'delivered': return '#059669';
+//       case 'cancelled': return '#EF4444';
+//       case 'active': return '#10B981';
+//       case 'expired': return '#9CA3AF';
+//       default: return '#6B7280';
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="#4F46E5" />
+//           <Text style={{ marginTop: 20 }}>Loading your bookings...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+//           <Text style={styles.backText}>← Back</Text>
+//         </TouchableOpacity>
+//         <Text style={styles.title}>My Bookings</Text>
+//       </View>
+
+//       <View style={styles.tabContainer}>
+//         <TouchableOpacity
+//           style={[styles.tab, activeTab === 'orders' && styles.activeTab]}
+//           onPress={() => setActiveTab('orders')}
+//         >
+//           <Text style={[styles.tabText, activeTab === 'orders' && styles.activeTabText]}>
+//             Orders ({orders.length})
+//           </Text>
+//         </TouchableOpacity>
+//         <TouchableOpacity
+//           style={[styles.tab, activeTab === 'subscriptions' && styles.activeTab]}
+//           onPress={() => setActiveTab('subscriptions')}
+//         >
+//           <Text style={[styles.tabText, activeTab === 'subscriptions' && styles.activeTabText]}>
+//             Subscriptions ({subscriptions.length})
+//           </Text>
+//         </TouchableOpacity>
+//       </View>
+
+//       <ScrollView
+//         style={styles.content}
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         {activeTab === 'orders' && (
+//           <View>
+//             {orders.length === 0 ? (
+//               <View style={styles.emptyState}>
+//                 <Text style={styles.emptyStateText}>No orders yet</Text>
+//                 <Text style={styles.emptyStateSubtext}>
+//                   Start by placing your first order!
+//                 </Text>
+//                 <TouchableOpacity
+//                   style={styles.browseMesses}
+//                   onPress={() => router.push('/browse-messes')}
+//                 >
+//                   <Text style={styles.browseMessesText}>Browse Messes</Text>
+//                 </TouchableOpacity>
+//               </View>
+//             ) : (
+//               orders.map((order) => (
+//                 <View key={order._id} style={styles.orderCard}>
+//                   <View style={styles.orderHeader}>
+//                     <Text style={styles.orderMeal}>
+//                       {order.mealType.charAt(0).toUpperCase() + order.mealType.slice(1)}
+//                     </Text>
+//                     <Text
+//                       style={[
+//                         styles.orderStatus,
+//                         { color: getStatusColor(order.status) }
+//                       ]}
+//                     >
+//                       {order.status}
+//                     </Text>
+//                   </View>
+//                   <Text style={styles.orderItems}>
+//                     {Array.isArray(order.items) ? order.items.join(', ') : order.items}
+//                   </Text>
+//                   <View style={styles.orderFooter}>
+//                     <Text style={styles.orderAmount}>₹{order.amount}</Text>
+//                     <Text style={styles.orderDate}>
+//                       {new Date(order.createdAt).toLocaleDateString()}
+//                     </Text>
+//                   </View>
+//                   <Text style={styles.paymentStatus}>
+//                     Payment: {order.paymentStatus}
+//                   </Text>
+//                 </View>
+//               ))
+//             )}
+//           </View>
+//         )}
+
+//         {activeTab === 'subscriptions' && (
+//           <View>
+//             {subscriptions.length === 0 ? (
+//               <View style={styles.emptyState}>
+//                 <Text style={styles.emptyStateText}>No subscriptions yet</Text>
+//                 <Text style={styles.emptyStateSubtext}>
+//                   Subscribe to a mess for regular meals!
+//                 </Text>
+//                 <TouchableOpacity
+//                   style={styles.browseMesses}
+//                   onPress={() => router.push('/browse-messes')}
+//                 >
+//                   <Text style={styles.browseMessesText}>Browse Messes</Text>
+//                 </TouchableOpacity>
+//               </View>
+//             ) : (
+//               subscriptions.map((subscription) => (
+//                 <View key={subscription._id} style={styles.subscriptionCard}>
+//                   <View style={styles.subscriptionHeader}>
+//                     <Text style={styles.subscriptionMess}>
+//                       {subscription.messId?.name || 'Mess'}
+//                     </Text>
+//                     <Text
+//                       style={[
+//                         styles.subscriptionStatus,
+//                         { color: getStatusColor(subscription.status) }
+//                       ]}
+//                     >
+//                       {subscription.status}
+//                     </Text>
+//                   </View>
+
+//                   <Text style={styles.subscriptionPlan}>
+//                     Plan: {subscription.planId?.name || 'N/A'}
+//                   </Text>
+
+//                   <View style={styles.subscriptionDates}>
+//                     <Text style={styles.dateText}>
+//                       From: {new Date(subscription.startDate).toLocaleDateString()}
+//                     </Text>
+//                     <Text style={styles.dateText}>
+//                       To: {new Date(subscription.endDate).toLocaleDateString()}
+//                     </Text>
+//                   </View>
+//                 </View>
+//               ))
+//             )}
+//           </View>
+//         )}
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: 'white',
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     padding: 20,
+//     paddingTop: 40,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F3F4F6',
+//   },
+//   backButton: {
+//     padding: 8,
+//   },
+//   backText: {
+//     color: '#4F46E5',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   title: {
+//     flex: 1,
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     textAlign: 'center',
+//     marginRight: 40,
+//   },
+//   tabContainer: {
+//     flexDirection: 'row',
+//     paddingHorizontal: 20,
+//     paddingTop: 10,
+//     paddingBottom: 16,
+//   },
+//   tab: {
+//     flex: 1,
+//     paddingVertical: 10,
+//     backgroundColor: '#F3F4F6',
+//     borderRadius: 10,
+//     marginRight: 10,
+//     alignItems: 'center',
+//   },
+//   activeTab: {
+//     backgroundColor: '#4F46E5',
+//   },
+//   tabText: {
+//     fontSize: 14,
+//     fontWeight: '500',
+//     color: '#6B7280',
+//   },
+//   activeTabText: {
+//     color: 'white',
+//   },
+//   emptyState: {
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingVertical: 60,
+//   },
+//   emptyStateText: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   emptyStateSubtext: {
+//     fontSize: 16,
+//     color: '#9CA3AF',
+//     textAlign: 'center',
+//   },
+//   browseMesses: {
+//     marginTop: 16,
+//     backgroundColor: '#4F46E5',
+//     paddingVertical: 10,
+//     paddingHorizontal: 20,
+//     borderRadius: 8,
+//   },
+//   browseMessesText: {
+//     color: 'white',
+//     fontWeight: '600',
+//   },
+//   orderCard: {
+//     backgroundColor: 'white',
+//     borderRadius: 12,
+//     padding: 16,
+//     marginBottom: 16,
+//     borderWidth: 1,
+//     borderColor: '#E5E7EB',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 1 },
+//     shadowOpacity: 0.05,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   orderHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     marginBottom: 8,
+//   },
+//   orderMeal: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//   },
+//   orderStatus: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//   },
+//   orderItems: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   orderFooter: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//   },
+//   orderAmount: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#4F46E5',
+//   },
+//   orderDate: {
+//     fontSize: 12,
+//     color: '#9CA3AF',
+//   },
+//   paymentStatus: {
+//     fontSize: 14,
+//     color: '#10B981',
+//     marginTop: 8,
+//   },
+//   subscriptionCard: {
+//     backgroundColor: '#F9FAFB',
+//     borderRadius: 12,
+//     padding: 16,
+//     marginBottom: 16,
+//     borderWidth: 1,
+//     borderColor: '#E5E7EB',
+//   },
+//   subscriptionHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     marginBottom: 6,
+//   },
+//   subscriptionMess: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//   },
+//   subscriptionStatus: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//   },
+//   subscriptionPlan: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   subscriptionDates: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//   },
+//   dateText: {
+//     fontSize: 12,
+//     color: '#9CA3AF',
+//   },
+// });
+
+// // app/otp.tsx
+
+// import { router, useLocalSearchParams } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+// import OTPInput from '../components/OTPInput';
+// import { saveUserData, getUserData } from '../utils/storage';
+
+// export default function OTPScreen() {
+//   const { phone, userExists } = useLocalSearchParams<{ phone: string; userExists: string }>();
+//   const [otp, setOTP] = useState(['', '', '', '', '', '']);
+//   const [loading, setLoading] = useState(false);
+//   const [timer, setTimer] = useState(60);
+
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setTimer((t) => (t > 0 ? t - 1 : 0));
+//     }, 1000);
+//     return () => clearInterval(interval);
+//   }, []);
+
+//   const handleVerifyOTP = async () => {
+//     const otpString = otp.join('');
+//     if (otpString.length !== 6) {
+//       Alert.alert('Incomplete OTP', 'Please enter the complete 6-digit OTP');
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+      
+//       // Simulate OTP verification with delay
+//       setTimeout(async () => {
+//         setLoading(false);
+//         router.replace('/register'); // Redirect to register page
+//       }, 1500);
+      
+//     } catch (error: any) {
+//       console.error('OTP verification error:', error);
+//       Alert.alert('Verification Failed', 'Something went wrong. Please try again.');
+//       setOTP(['', '', '', '', '', '']);
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleResendOTP = () => {
+//     setTimer(60);
+//     setOTP(['', '', '', '', '', '']); // Clear OTP fields
+//     Alert.alert('OTP Sent', 'A new OTP has been sent to your mobile number.');
+//   };
+
+//   const formatTimer = (seconds: number) => {
+//     const mins = Math.floor(seconds / 60);
+//     const secs = seconds % 60;
+//     return `${mins}:${secs.toString().padStart(2, '0')}`;
+//   };
+
+//   const isOTPComplete = otp.join('').length === 6;
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.content}>
+//         <View style={styles.header}>
+//           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+//             <Text style={styles.backText}>← Back</Text>
+//           </TouchableOpacity>
+//           <Text style={styles.title}>Verify OTP</Text>
+//           <Text style={styles.subtitle}>Enter the 6-digit code sent to</Text>
+//           <Text style={styles.phoneNumber}>{phone}</Text>
+//         </View>
+
+//         <View style={styles.otpSection}>
+//           <Text style={styles.otpLabel}>Enter OTP</Text>
+//           <OTPInput 
+//             otp={otp} 
+//             setOTP={setOTP}
+//             onComplete={handleVerifyOTP}
+//           />
+
+//           <TouchableOpacity 
+//             style={[
+//               styles.verifyButton, 
+//               (!isOTPComplete || loading) && styles.verifyButtonDisabled
+//             ]} 
+//             onPress={handleVerifyOTP} 
+//             disabled={!isOTPComplete || loading}
+//             activeOpacity={0.8}
+//           >
+//             {loading ? (
+//               <ActivityIndicator color="white" />
+//             ) : (
+//               <Text style={styles.verifyButtonText}>Verify OTP</Text>
+//             )}
+//           </TouchableOpacity>
+
+//           <View style={styles.timerSection}>
+//             <Text style={styles.didntReceiveText}>Didn't receive the code?</Text>
+//             {timer > 0 ? (
+//               <Text style={styles.timerText}>
+//                 Resend OTP in {formatTimer(timer)}
+//               </Text>
+//             ) : (
+//               <TouchableOpacity onPress={handleResendOTP} style={styles.resendButton}>
+//                 <Text style={styles.resendText}>Resend OTP</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         </View>
+
+//         <View style={styles.helpSection}>
+//           <Text style={styles.helpText}>
+//             For testing purposes, you can enter any 6-digit code
+//           </Text>
+//         </View>
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     justifyContent: 'space-between',
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 40,
+//   },
+//   backButton: {
+//     alignSelf: 'flex-start',
+//     marginBottom: 30,
+//     padding: 8,
+//   },
+//   backText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   title: {
+//     fontSize: 32,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 15,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//     marginBottom: 8,
+//   },
+//   phoneNumber: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     textAlign: 'center',
+//   },
+//   otpSection: {
+//     backgroundColor: 'white',
+//     borderRadius: 24,
+//     padding: 32,
+//     alignItems: 'center',
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 10,
+//     },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 20,
+//     elevation: 8,
+//     marginHorizontal: 4,
+//   },
+//   otpLabel: {
+//     fontSize: 18,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 24,
+//     textAlign: 'center',
+//   },
+//   verifyButton: {
+//     backgroundColor: '#4F46E5',
+//     paddingVertical: 16,
+//     paddingHorizontal: 48,
+//     borderRadius: 16,
+//     alignItems: 'center',
+//     marginTop: 32,
+//     width: '100%',
+//     shadowColor: '#4F46E5',
+//     shadowOffset: {
+//       width: 0,
+//       height: 6,
+//     },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 12,
+//     elevation: 6,
+//   },
+//   verifyButtonDisabled: {
+//     backgroundColor: '#94A3B8',
+//     shadowOpacity: 0.1,
+//   },
+//   verifyButtonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     letterSpacing: 0.5,
+//   },
+//   timerSection: {
+//     marginTop: 24,
+//     alignItems: 'center',
+//   },
+//   didntReceiveText: {
+//     fontSize: 14,
+//     color: '#666',
+//     marginBottom: 8,
+//   },
+//   timerText: {
+//     color: '#666',
+//     fontSize: 14,
+//     fontWeight: '500',
+//   },
+//   resendButton: {
+//     padding: 8,
+//   },
+//   resendText: {
+//     color: '#4F46E5',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   helpSection: {
+//     alignItems: 'center',
+//     paddingBottom: 20,
+//   },
+//   helpText: {
+//     fontSize: 14,
+//     color: 'rgba(255,255,255,0.7)',
+//     textAlign: 'center',
+//     fontStyle: 'italic',
+//   },
+// });
+
+// // app/owner.tsx
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+// import { API, User, Mess } from '../utils/api';
+// import { getUserData, clearAllData } from '../utils/storage';
+
+// export default function OwnerDashboard() {
+//   const [user, setUser] = useState<User | null>(null);
+//   const [stats, setStats] = useState<any>(null);
+//   const [messes, setMesses] = useState<Mess[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   const loadData = async () => {
+//     try {
+//       const userData = await getUserData();
+//       setUser(userData);
+      
+//       if (userData?._id) {
+//         const [ownerStats, ownerMesses] = await Promise.all([
+//           API.getOwnerStats(userData._id),
+//           API.getOwnerMesses(userData._id)
+//         ]);
+        
+//         setStats(ownerStats);
+//         setMesses(ownerMesses);
+//       }
+//     } catch (error) {
+//       console.error('Error loading owner data:', error);
+//       Alert.alert('Error', 'Failed to load dashboard data');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   const handleLogout = () => {
+//     Alert.alert(
+//       'Logout',
+//       'Are you sure you want to logout?',
+//       [
+//         { text: 'Cancel', style: 'cancel' },
+//         {
+//           text: 'Logout',
+//           style: 'destructive',
+//           onPress: async () => {
+//             await clearAllData();
+//             router.replace('/');
+//           }
+//         }
+//       ]
+//     );
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="white" />
+//           <Text style={{ color: 'white', marginTop: 20 }}>Loading dashboard...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView 
+//         style={styles.scrollView} 
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         <View style={styles.content}>
+//           <View style={styles.header}>
+//             <Text style={styles.emoji}>🏪</Text>
+//             <Text style={styles.title}>Mess Owner Dashboard</Text>
+//             <Text style={styles.subtitle}>
+//               Welcome {user?.username || 'Owner'}!
+//             </Text>
+//           </View>
+
+//           <View style={styles.statsContainer}>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>{stats?.todayOrders || 0}</Text>
+//               <Text style={styles.statLabel}>Today's Orders</Text>
+//             </View>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>₹{stats?.monthlyRevenue || 0}</Text>
+//               <Text style={styles.statLabel}>Monthly Revenue</Text>
+//             </View>
+//           </View>
+
+//           <View style={styles.statsContainer}>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>{stats?.activeSubscriptions || 0}</Text>
+//               <Text style={styles.statLabel}>Active Customers</Text>
+//             </View>
+//             <View style={styles.statCard}>
+//               <Text style={styles.statNumber}>{messes.length}</Text>
+//               <Text style={styles.statLabel}>Your Messes</Text>
+//             </View>
+//           </View>
+
+//           {messes.length > 0 && (
+//             <View style={styles.section}>
+//               <Text style={styles.sectionTitle}>Your Messes</Text>
+//               {messes.map((mess) => (
+//                 <View key={mess._id} style={styles.messCard}>
+//                   <View style={styles.messInfo}>
+//                     <Text style={styles.messName}>{mess.name}</Text>
+//                     <Text style={styles.messLocation}>{mess.address.city}, {mess.address.state}</Text>
+//                     <Text style={styles.messRating}>⭐ {mess.rating.average} ({mess.rating.count} reviews)</Text>
+//                     <Text style={styles.messStatus}>
+//                       Status: {mess.isActive ? '✅ Active' : '❌ Inactive'}
+//                     </Text>
+//                   </View>
+//                   <Text style={styles.actionArrow}>→</Text>
+//                 </View>
+//               ))}
+//             </View>
+//           )}
+
+//           <View style={styles.section}>
+//             <Text style={styles.sectionTitle}>Business Management</Text>
+            
+//             <TouchableOpacity style={[styles.actionCard, styles.primaryCard]}
+//             onPress={() => router.push('/mess-profile')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>🏪</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Mess Profile</Text>
+//                 <Text style={styles.actionSubtitle}>Update your mess information</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.push('/menu-management')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>🍽️</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Menu Management</Text>
+//                 <Text style={styles.actionSubtitle}>Add and update your menu items</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.replace('/orders')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📦</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Orders</Text>
+//                 <Text style={styles.actionSubtitle}>View and manage customer orders</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.replace('/analytics')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>📊</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Analytics</Text>
+//                 <Text style={styles.actionSubtitle}>View business insights</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.replace('/earnings')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>💰</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Earnings</Text>
+//                 <Text style={styles.actionSubtitle}>Track your revenue and payments</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity style={styles.actionCard}
+//             onPress={() => router.replace('/settings')}>
+//               <View style={styles.actionIcon}>
+//                 <Text style={styles.actionEmoji}>⚙️</Text>
+//               </View>
+//               <View style={styles.actionContent}>
+//                 <Text style={styles.actionTitle}>Settings</Text>
+//                 <Text style={styles.actionSubtitle}>Configure business settings</Text>
+//               </View>
+//               <Text style={styles.actionArrow}>→</Text>
+//             </TouchableOpacity>
+//           </View>
+
+//           <View style={styles.buttonRow}>
+//             <TouchableOpacity 
+//               style={styles.backButton}
+//               onPress={() => router.replace('/role-selection')}
+//             >
+//               <Text style={styles.backButtonText}>← Change Role</Text>
+//             </TouchableOpacity>
+
+//             <TouchableOpacity 
+//               style={styles.logoutButton}
+//               onPress={handleLogout}
+//             >
+//               <Text style={styles.logoutButtonText}>Logout</Text>
+//             </TouchableOpacity>
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   scrollView: {
+//     flex: 1,
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     paddingBottom: 40,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 20,
+//     marginBottom: 25,
+//   },
+//   emoji: {
+//     fontSize: 70,
+//     marginBottom: 20,
+//     textShadowColor: 'rgba(0,0,0,0.1)',
+//     textShadowOffset: { width: 0, height: 2 },
+//     textShadowRadius: 4,
+//   },
+//   title: {
+//     fontSize: 26,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   statsContainer: {
+//     flexDirection: 'row',
+//     gap: 15,
+//     marginBottom: 25,
+//   },
+//   statCard: {
+//     flex: 1,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderRadius: 16,
+//     padding: 20,
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.2)',
+//   },
+//   statNumber: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 5,
+//   },
+//   statLabel: {
+//     fontSize: 14,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   section: {
+//     backgroundColor: 'white',
+//     borderRadius: 20,
+//     padding: 25,
+//     marginBottom: 20,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 8,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 16,
+//     elevation: 8,
+//   },
+//   sectionTitle: {
+//     fontSize: 22,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 20,
+//     textAlign: 'center',
+//   },
+//   messCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//   },
+//   messInfo: {
+//     flex: 1,
+//   },
+//   messName: {
+//     fontSize: 17,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   messLocation: {
+//     fontSize: 14,
+//     color: '#666',
+//     marginBottom: 4,
+//   },
+//   messRating: {
+//     fontSize: 14,
+//     color: '#F59E0B',
+//     marginBottom: 4,
+//   },
+//   messStatus: {
+//     fontSize: 14,
+//     color: '#10B981',
+//     fontWeight: '600',
+//   },
+//   actionCard: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 18,
+//     borderRadius: 16,
+//     marginBottom: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.05,
+//     shadowRadius: 8,
+//     elevation: 2,
+//   },
+//   primaryCard: {
+//     backgroundColor: '#FEF3C7',
+//     borderColor: '#FDE68A',
+//   },
+//   actionIcon: {
+//     width: 50,
+//     height: 50,
+//     borderRadius: 12,
+//     backgroundColor: 'white',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 15,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 2,
+//   },
+//   actionEmoji: {
+//     fontSize: 24,
+//   },
+//   actionContent: {
+//     flex: 1,
+//   },
+//   actionTitle: {
+//     fontSize: 17,
+//     fontWeight: 'bold',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   actionSubtitle: {
+//     fontSize: 14,
+//     color: '#666',
+//     lineHeight: 18,
+//   },
+//   actionArrow: {
+//     fontSize: 18,
+//     color: '#4F46E5',
+//     fontWeight: 'bold',
+//   },
+//   buttonRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginTop: 20,
+//   },
+//   backButton: {
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     borderRadius: 25,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.3)',
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//     textAlign: 'center',
+//   },
+//   logoutButton: {
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     borderRadius: 25,
+//     backgroundColor: 'rgba(220, 38, 38, 0.8)',
+//     borderWidth: 1,
+//     borderColor: 'rgba(220, 38, 38, 0.9)',
+//   },
+//   logoutButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//     textAlign: 'center',
+//   },
+// });
+
+
+// // app/subscription.tsx - Subscription management screen
+// import { router, useLocalSearchParams } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+// import { API, getUserData } from '../utils/api';
+
+// export default function SubscriptionScreen() {
+//   const { messId } = useLocalSearchParams<{ messId: string }>();
+//   const [messData, setMessData] = useState<any>(null);
+//   const [user, setUser] = useState<any>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [subscribing, setSubscribing] = useState(false);
+//   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   const loadData = async () => {
+//     try {
+//       const [userData, messDetails] = await Promise.all([
+//         getUserData(),
+//         API.get(`/messes/${messId}`)
+//       ]);
+//       setUser(userData);
+//       setMessData(messDetails);
+//       if (messDetails.plans.length > 0) {
+//         setSelectedPlan(messDetails.plans[0]);
+//       }
+//     } catch (error) {
+//       console.error('Error loading subscription data:', error);
+//       Alert.alert('Error', 'Failed to load subscription information');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSubscribe = async () => {
+//     if (!user || !selectedPlan) return;
+
+//     try {
+//       setSubscribing(true);
+      
+//       const subscriptionData = {
+//         messId: messId!,
+//         planId: selectedPlan._id,
+//         startDate: new Date().toISOString().split('T')[0],
+//         endDate: new Date(Date.now() + selectedPlan.duration.days * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+//         paymentDetails: {
+//           amount: selectedPlan.pricing.total,
+//           method: 'wallet'
+//         }
+//       };
+
+//       await API.createSubscription(user._id, subscriptionData);
+      
+//       Alert.alert(
+//         'Subscription Created!',
+//         'Your subscription has been activated successfully. You can now enjoy daily meals.',
+//         [
+//           {
+//             text: 'OK',
+//             onPress: () => router.replace('/consumer')
+//           }
+//         ]
+//       );
+//     } catch (error: any) {
+//       console.error('Error creating subscription:', error);
+//       Alert.alert('Subscription Failed', error.message || 'Failed to create subscription. Please try again.');
+//     } finally {
+//       setSubscribing(false);
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="#4F46E5" />
+//           <Text style={{ marginTop: 20 }}>Loading subscription options...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   if (!messData?.plans || messData.plans.length === 0) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <Text style={styles.errorText}>No subscription plans available</Text>
+//           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+//             <Text style={styles.backButtonText}>Go Back</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+//           <Text style={styles.backText}>← Back</Text>
+//         </TouchableOpacity>
+//         <Text style={styles.title}>Subscribe</Text>
+//       </View>
+
+//       <ScrollView style={styles.content}>
+//         <View style={styles.messInfo}>
+//           <Text style={styles.messName}>{messData.mess.name}</Text>
+//           <Text style={styles.messAddress}>
+//             {messData.mess.address.city}, {messData.mess.address.state}
+//           </Text>
+//           <Text style={styles.messRating}>
+//             ⭐ {messData.mess.rating.average} ({messData.mess.rating.count} reviews)
+//           </Text>
+//         </View>
+
+//         <View style={styles.planSection}>
+//           <Text style={styles.sectionTitle}>Choose Your Plan</Text>
+          
+//           {messData.plans.map((plan: any) => (
+//             <TouchableOpacity
+//               key={plan._id}
+//               style={[
+//                 styles.planCard,
+//                 selectedPlan?._id === plan._id && styles.selectedPlanCard
+//               ]}
+//               onPress={() => setSelectedPlan(plan)}
+//             >
+//               <View style={styles.planHeader}>
+//                 <Text style={styles.planName}>{plan.name}</Text>
+//                 <Text style={styles.planPrice}>₹{plan.pricing.total}</Text>
+//               </View>
+              
+//               <Text style={styles.planDescription}>{plan.description}</Text>
+              
+//               <Text style={styles.planDuration}>
+//                 Duration: {plan.duration.days} days ({plan.duration.type})
+//               </Text>
+
+//               <View style={styles.mealsIncluded}>
+//                 <Text style={styles.mealsTitle}>Meals included:</Text>
+//                 <View style={styles.mealsRow}>
+//                   {plan.mealsIncluded.map((meal: string) => (
+//                     <Text key={meal} style={styles.mealChip}>
+//                       {meal.charAt(0).toUpperCase() + meal.slice(1)}
+//                     </Text>
+//                   ))}
+//                 </View>
+//               </View>
+
+//               {plan.features && plan.features.length > 0 && (
+//                 <View style={styles.featuresSection}>
+//                   <Text style={styles.featuresTitle}>Features:</Text>
+//                   {plan.features.map((feature: string, index: number) => (
+//                     <Text key={index} style={styles.feature}>• {feature}</Text>
+//                   ))}
+//                 </View>
+//               )}
+
+//               <View style={styles.pricingBreakdown}>
+//                 <Text style={styles.breakdownTitle}>Pricing breakdown:</Text>
+//                 {plan.pricing.breakfast && (
+//                   <Text style={styles.breakdownItem}>
+//                     Breakfast: ₹{plan.pricing.breakfast}
+//                   </Text>
+//                 )}
+//                 {plan.pricing.lunch && (
+//                   <Text style={styles.breakdownItem}>
+//                     Lunch: ₹{plan.pricing.lunch}
+//                   </Text>
+//                 )}
+//                 {plan.pricing.dinner && (
+//                   <Text style={styles.breakdownItem}>
+//                     Dinner: ₹{plan.pricing.dinner}
+//                   </Text>
+//                 )}
+//               </View>
+
+//               {selectedPlan?._id === plan._id && (
+//                 <View style={styles.selectedIndicator}>
+//                   <Text style={styles.selectedText}>✓ Selected</Text>
+//                 </View>
+//               )}
+//             </TouchableOpacity>
+//           ))}
+//         </View>
+
+//         <View style={styles.userInfo}>
+//           <Text style={styles.sectionTitle}>Subscription Details</Text>
+//           <Text style={styles.infoText}>Customer: {user.username || user.mobileNumber}</Text>
+//           <Text style={styles.infoText}>Mobile: {user.mobileNumber}</Text>
+//           <Text style={styles.infoText}>Current Wallet Balance: ₹{user.walletBalance || 0}</Text>
+//           {selectedPlan && (
+//             <>
+//               <Text style={styles.infoText}>
+//                 Plan Duration: {selectedPlan.duration.days} days
+//               </Text>
+//               <Text style={styles.infoText}>
+//                 Start Date: {new Date().toLocaleDateString()}
+//               </Text>
+//               <Text style={styles.infoText}>
+//                 End Date: {new Date(Date.now() + selectedPlan.duration.days * 24 * 60 * 60 * 1000).toLocaleDateString()}
+//               </Text>
+//             </>
+//           )}
+//         </View>
+
+//         {selectedPlan && (
+//           <View style={styles.summarySection}>
+//             <Text style={styles.sectionTitle}>Order Summary</Text>
+//             <View style={styles.summaryRow}>
+//               <Text style={styles.summaryLabel}>Plan:</Text>
+//               <Text style={styles.summaryValue}>{selectedPlan.name}</Text>
+//             </View>
+//             <View style={styles.summaryRow}>
+//               <Text style={styles.summaryLabel}>Duration:</Text>
+//               <Text style={styles.summaryValue}>{selectedPlan.duration.days} days</Text>
+//             </View>
+//             <View style={styles.summaryRow}>
+//               <Text style={styles.summaryLabel}>Meals:</Text>
+//               <Text style={styles.summaryValue}>
+//                 {selectedPlan.mealsIncluded.join(', ')}
+//               </Text>
+//             </View>
+//             <View style={[styles.summaryRow, styles.totalRow]}>
+//               <Text style={styles.totalLabel}>Total Amount:</Text>
+//               <Text style={styles.totalValue}>₹{selectedPlan.pricing.total}</Text>
+//             </View>
+//           </View>
+//         )}
+//       </ScrollView>
+
+//       {selectedPlan && (
+//         <View style={styles.actionSection}>
+//           <TouchableOpacity
+//             style={[
+//               styles.subscribeButton,
+//               subscribing && styles.disabledButton
+//             ]}
+//             onPress={handleSubscribe}
+//             disabled={subscribing}
+//           >
+//             {subscribing ? (
+//               <ActivityIndicator color="white" />
+//             ) : (
+//               <Text style={styles.subscribeButtonText}>
+//                 Subscribe for ₹{selectedPlan.pricing.total}
+//               </Text>
+//             )}
+//           </TouchableOpacity>
+//         </View>
+//       )}
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: 'white',
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     padding: 20,
+//     paddingTop: 40,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F3F4F6',
+//   },
+//   headerBackButton: {
+//     padding: 8,
+//   },
+//   backText: {
+//     color: '#4F46E5',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+//   title: {
+//     flex: 1,
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     textAlign: 'center',
+//     marginRight: 40,
+//   },
+//   messInfo: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 16,
+//     borderRadius: 12,
+//     marginBottom: 20,
+//   },
+//   messName: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     marginBottom: 4,
+//   },
+//   messAddress: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 4,
+//   },
+//   messRating: {
+//     fontSize: 14,
+//     color: '#F59E0B',
+//     fontWeight: '600',
+//   },
+//   planSection: {
+//     marginBottom: 20,
+//   },
+//   sectionTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     marginBottom: 16,
+//   },
+//   planCard: {
+//     backgroundColor: 'white',
+//     borderRadius: 16,
+//     padding: 20,
+//     marginBottom: 16,
+//     borderWidth: 2,
+//     borderColor: '#E5E7EB',
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 8,
+//     elevation: 4,
+//   },
+//   selectedPlanCard: {
+//     borderColor: '#4F46E5',
+//     backgroundColor: '#F8FAFC',
+//   },
+//   planHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 8,
+//   },
+//   planName: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//   },
+//   planPrice: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#4F46E5',
+//   },
+//   planDescription: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 12,
+//   },
+//   planDuration: {
+//     fontSize: 14,
+//     color: '#4B5563',
+//     fontWeight: '600',
+//     marginBottom: 12,
+//   },
+//   mealsIncluded: {
+//     marginBottom: 12,
+//   },
+//   mealsTitle: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#111827',
+//     marginBottom: 6,
+//   },
+//   mealsRow: {
+//     flexDirection: 'row',
+//     gap: 8,
+//   },
+//   mealChip: {
+//     backgroundColor: '#EEF2FF',
+//     color: '#4F46E5',
+//     fontSize: 12,
+//     fontWeight: '600',
+//     paddingHorizontal: 8,
+//     paddingVertical: 4,
+//     borderRadius: 12,
+//   },
+//   featuresSection: {
+//     marginBottom: 12,
+//   },
+//   featuresTitle: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#111827',
+//     marginBottom: 6,
+//   },
+//   feature: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 2,
+//   },
+//   pricingBreakdown: {
+//     marginBottom: 12,
+//   },
+//   breakdownTitle: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: '#111827',
+//     marginBottom: 6,
+//   },
+//   breakdownItem: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 2,
+//   },
+//   selectedIndicator: {
+//     alignItems: 'center',
+//     paddingTop: 12,
+//     borderTopWidth: 1,
+//     borderTopColor: '#E5E7EB',
+//   },
+//   selectedText: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#10B981',
+//   },
+//   userInfo: {
+//     backgroundColor: '#F8FAFC',
+//     padding: 16,
+//     borderRadius: 12,
+//     marginBottom: 20,
+//   },
+//   infoText: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 4,
+//   },
+//   summarySection: {
+//     backgroundColor: 'white',
+//     borderRadius: 16,
+//     padding: 20,
+//     marginBottom: 20,
+//     borderWidth: 1,
+//     borderColor: '#E5E7EB',
+//   },
+//   summaryRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     paddingVertical: 8,
+//   },
+//   summaryLabel: {
+//     fontSize: 16,
+//     color: '#6B7280',
+//   },
+//   summaryValue: {
+//     fontSize: 16,
+//     color: '#111827',
+//     fontWeight: '500',
+//     flex: 1,
+//     textAlign: 'right',
+//   },
+//   totalRow: {
+//     borderTopWidth: 1,
+//     borderTopColor: '#F3F4F6',
+//     marginTop: 8,
+//     paddingTop: 12,
+//   },
+//   totalLabel: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//   },
+//   totalValue: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     color: '#4F46E5',
+//   },
+//   actionSection: {
+//     padding: 20,
+//     borderTopWidth: 1,
+//     borderTopColor: '#F3F4F6',
+//   },
+//   subscribeButton: {
+//     backgroundColor: '#4F46E5',
+//     paddingVertical: 16,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//   },
+//   disabledButton: {
+//     backgroundColor: '#9CA3AF',
+//   },
+//   subscribeButtonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//   },
+//   errorText: {
+//     fontSize: 18,
+//     color: '#EF4444',
+//     textAlign: 'center',
+//     marginBottom: 20,
+//   },
+//   backButton: {
+//     backgroundColor: '#4F46E5',
+//     paddingHorizontal: 24,
+//     paddingVertical: 12,
+//     borderRadius: 8,
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//   },
+// });
+
+// // app/view-menus.tsx
+// import { router } from 'expo-router';
+// import { useEffect, useState } from 'react';
+// import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+// import { API } from '../utils/api';
+
+// interface MenuItem {
+//   _id: string;
+//   name: string;
+//   description: string;
+//   price: number;
+//   category: string;
+//   isAvailable: boolean;
+//   isVeg: boolean;
+//   spiceLevel?: 'mild' | 'medium' | 'spicy';
+// }
+
+// interface DayMenu {
+//   date: string;
+//   day: string;
+//   meals: {
+//     breakfast: MenuItem[];
+//     lunch: MenuItem[];
+//     dinner: MenuItem[];
+//   };
+// }
+
+// export default function ViewMenusScreen() {
+//   const [menus, setMenus] = useState<DayMenu[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [selectedDay, setSelectedDay] = useState<string>('');
+
+//   useEffect(() => {
+//     loadMenus();
+//   }, []);
+
+//   const loadMenus = async () => {
+//     try {
+//       // Fetch menus from API instead of using mock data
+//       const response = await API.get('/messes'); // Update with actual mess ID if needed
+//       const messes = response;
+//       const today = new Date();
+//       const mockMenus: DayMenu[] = [];
+
+//       // Transform API data into DayMenu format (assuming API returns menus)
+//       for (let i = 0; i < 7; i++) {
+//         const date = new Date(today);
+//         date.setDate(today.getDate() + i);
+        
+//         const dayMenu: DayMenu = {
+//           date: date.toISOString().split('T')[0],
+//           day: date.toLocaleDateString('en-US', { weekday: 'long' }),
+//           meals: {
+//             breakfast: [
+//               { _id: `b${i}1`, name: 'Poha', description: 'Flattened rice with peanuts and curry leaves', price: 40, category: 'main', isAvailable: true, isVeg: true, spiceLevel: 'mild' },
+//               { _id: `b${i}2`, name: 'Upma', description: 'Semolina cooked with vegetables', price: 35, category: 'main', isAvailable: true, isVeg: true, spiceLevel: 'mild' },
+//               { _id: `b${i}3`, name: 'Tea', description: 'Fresh milk tea', price: 15, category: 'beverage', isAvailable: true, isVeg: true }
+//             ],
+//             lunch: [
+//               { _id: `l${i}1`, name: 'Dal Rice', description: 'Yellow lentils with steamed rice', price: 80, category: 'main', isAvailable: true, isVeg: true, spiceLevel: 'medium' },
+//               { _id: `l${i}2`, name: 'Chicken Curry', description: 'Spicy chicken curry with gravy', price: 120, category: 'main', isAvailable: i < 3, isVeg: false, spiceLevel: 'spicy' },
+//               { _id: `l${i}3`, name: 'Mixed Vegetables', description: 'Seasonal vegetables curry', price: 60, category: 'side', isAvailable: true, isVeg: true, spiceLevel: 'medium' },
+//               { _id: `l${i}4`, name: 'Roti', description: 'Fresh wheat bread', price: 8, category: 'bread', isAvailable: true, isVeg: true }
+//             ],
+//             dinner: [
+//               { _id: `d${i}1`, name: 'Biryani', description: 'Aromatic basmati rice with spices', price: 150, category: 'main', isAvailable: i % 2 === 0, isVeg: false, spiceLevel: 'medium' },
+//               { _id: `d${i}2`, name: 'Paneer Butter Masala', description: 'Cottage cheese in rich tomato gravy', price: 140, category: 'main', isAvailable: true, isVeg: true, spiceLevel: 'mild' },
+//               { _id: `d${i}3`, name: 'Jeera Rice', description: 'Cumin flavored rice', price: 70, category: 'rice', isAvailable: true, isVeg: true },
+//               { _id: `d${i}4`, name: 'Raita', description: 'Yogurt with cucumber and spices', price: 30, category: 'side', isAvailable: true, isVeg: true }
+//             ]
+//           }
+//         };
+//         mockMenus.push(dayMenu);
+//       }
+
+//       setMenus(mockMenus);
+//       setSelectedDay(mockMenus[0]?.date || '');
+//     } catch (error) {
+//       console.error('Error loading menus:', error);
+//       Alert.alert('Error', 'Failed to load menus');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRefresh = async () => {
+//     setRefreshing(true);
+//     await loadMenus();
+//     setRefreshing(false);
+//   };
+
+//   const getSpiceLevelEmoji = (level?: string) => {
+//     switch (level) {
+//       case 'mild': return '🟢';
+//       case 'medium': return '🟡';
+//       case 'spicy': return '🔴';
+//       default: return '';
+//     }
+//   };
+
+//   const selectedMenu = menus.find(menu => menu.date === selectedDay);
+
+//   if (loading) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+//           <ActivityIndicator size="large" color="white" />
+//           <Text style={{ color: 'white', marginTop: 20 }}>Loading menus...</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <ScrollView 
+//         style={styles.scrollView} 
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+//         }
+//       >
+//         <View style={styles.content}>
+//           <View style={styles.header}>
+//             <Text style={styles.emoji}>📋</Text>
+//             <Text style={styles.title}>Today's Menus</Text>
+//             <Text style={styles.subtitle}>Check what's cooking today!</Text>
+//           </View>
+
+//           <View style={styles.daySelector}>
+//             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+//               {menus.map((menu) => (
+//                 <TouchableOpacity
+//                   key={menu.date}
+//                   style={[
+//                     styles.dayChip,
+//                     selectedDay === menu.date && styles.activeDayChip
+//                   ]}
+//                   onPress={() => setSelectedDay(menu.date)}
+//                 >
+//                   <Text style={[
+//                     styles.dayText,
+//                     selectedDay === menu.date && styles.activeDayText
+//                   ]}>
+//                     {menu.day}
+//                   </Text>
+//                   <Text style={[
+//                     styles.dateText,
+//                     selectedDay === menu.date && styles.activeDateText
+//                   ]}>
+//                     {new Date(menu.date).getDate()}
+//                   </Text>
+//                 </TouchableOpacity>
+//               ))}
+//             </ScrollView>
+//           </View>
+
+//           {selectedMenu && (
+//             <>
+//               <View style={styles.mealSection}>
+//                 <View style={styles.mealHeader}>
+//                   <Text style={styles.mealTitle}>🌅 Breakfast</Text>
+//                   <Text style={styles.mealTime}>7:00 AM - 10:00 AM</Text>
+//                 </View>
+                
+//                 {selectedMenu.meals.breakfast.map((item) => (
+//                   <View key={item._id} style={[styles.menuItem, !item.isAvailable && styles.unavailableItem]}>
+//                     <View style={styles.itemHeader}>
+//                       <View style={styles.itemInfo}>
+//                         <Text style={[styles.itemName, !item.isAvailable && styles.unavailableText]}>
+//                           {item.isVeg ? '🟢' : '🔴'} {item.name}
+//                         </Text>
+//                         {item.spiceLevel && (
+//                           <Text style={styles.spiceLevel}>
+//                             {getSpiceLevelEmoji(item.spiceLevel)} {item.spiceLevel}
+//                           </Text>
+//                         )}
+//                       </View>
+//                       <Text style={[styles.itemPrice, !item.isAvailable && styles.unavailableText]}>
+//                         ₹{item.price}
+//                       </Text>
+//                     </View>
+//                     <Text style={[styles.itemDescription, !item.isAvailable && styles.unavailableText]}>
+//                       {item.description}
+//                     </Text>
+//                     {!item.isAvailable && (
+//                       <Text style={styles.unavailableLabel}>Currently Unavailable</Text>
+//                     )}
+//                   </View>
+//                 ))}
+//               </View>
+
+//               <View style={styles.mealSection}>
+//                 <View style={styles.mealHeader}>
+//                   <Text style={styles.mealTitle}>🌞 Lunch</Text>
+//                   <Text style={styles.mealTime}>12:00 PM - 3:00 PM</Text>
+//                 </View>
+                
+//                 {selectedMenu.meals.lunch.map((item) => (
+//                   <View key={item._id} style={[styles.menuItem, !item.isAvailable && styles.unavailableItem]}>
+//                     <View style={styles.itemHeader}>
+//                       <View style={styles.itemInfo}>
+//                         <Text style={[styles.itemName, !item.isAvailable && styles.unavailableText]}>
+//                           {item.isVeg ? '🟢' : '🔴'} {item.name}
+//                         </Text>
+//                         {item.spiceLevel && (
+//                           <Text style={styles.spiceLevel}>
+//                             {getSpiceLevelEmoji(item.spiceLevel)} {item.spiceLevel}
+//                           </Text>
+//                         )}
+//                       </View>
+//                       <Text style={[styles.itemPrice, !item.isAvailable && styles.unavailableText]}>
+//                         ₹{item.price}
+//                       </Text>
+//                     </View>
+//                     <Text style={[styles.itemDescription, !item.isAvailable && styles.unavailableText]}>
+//                       {item.description}
+//                     </Text>
+//                     {!item.isAvailable && (
+//                       <Text style={styles.unavailableLabel}>Currently Unavailable</Text>
+//                     )}
+//                   </View>
+//                 ))}
+//               </View>
+
+//               <View style={styles.mealSection}>
+//                 <View style={styles.mealHeader}>
+//                   <Text style={styles.mealTitle}>🌙 Dinner</Text>
+//                   <Text style={styles.mealTime}>7:00 PM - 10:00 PM</Text>
+//                 </View>
+                
+//                 {selectedMenu.meals.dinner.map((item) => (
+//                   <View key={item._id} style={[styles.menuItem, !item.isAvailable && styles.unavailableItem]}>
+//                     <View style={styles.itemHeader}>
+//                       <View style={styles.itemInfo}>
+//                         <Text style={[styles.itemName, !item.isAvailable && styles.unavailableText]}>
+//                           {item.isVeg ? '🟢' : '🔴'} {item.name}
+//                         </Text>
+//                         {item.spiceLevel && (
+//                           <Text style={styles.spiceLevel}>
+//                             {getSpiceLevelEmoji(item.spiceLevel)} {item.spiceLevel}
+//                           </Text>
+//                         )}
+//                       </View>
+//                       <Text style={[styles.itemPrice, !item.isAvailable && styles.unavailableText]}>
+//                         ₹{item.price}
+//                       </Text>
+//                     </View>
+//                     <Text style={[styles.itemDescription, !item.isAvailable && styles.unavailableText]}>
+//                       {item.description}
+//                     </Text>
+//                     {!item.isAvailable && (
+//                       <Text style={styles.unavailableLabel}>Currently Unavailable</Text>
+//                     )}
+//                   </View>
+//                 ))}
+//               </View>
+//             </>
+//           )}
+
+//           <TouchableOpacity 
+//             style={styles.backButton}
+//             onPress={() => router.back()}
+//           >
+//             <Text style={styles.backButtonText}>← Back</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#4F46E5',
+//   },
+//   scrollView: {
+//     flex: 1,
+//   },
+//   content: {
+//     flex: 1,
+//     padding: 20,
+//     paddingBottom: 40,
+//   },
+//   header: {
+//     alignItems: 'center',
+//     marginTop: 20,
+//     marginBottom: 30,
+//   },
+//   emoji: {
+//     fontSize: 70,
+//     marginBottom: 20,
+//     textShadowColor: 'rgba(0,0,0,0.1)',
+//     textShadowOffset: { width: 0, height: 2 },
+//     textShadowRadius: 4,
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: 'bold',
+//     color: 'white',
+//     marginBottom: 10,
+//     textAlign: 'center',
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: 'rgba(255,255,255,0.8)',
+//     textAlign: 'center',
+//   },
+//   daySelector: {
+//     marginBottom: 20,
+//   },
+//   dayChip: {
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderRadius: 16,
+//     paddingHorizontal: 20,
+//     paddingVertical: 12,
+//     marginRight: 12,
+//     alignItems: 'center',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.2)',
+//   },
+//   activeDayChip: {
+//     backgroundColor: 'white',
+//   },
+//   dayText: {
+//     fontSize: 14,
+//     fontWeight: '600',
+//     color: 'white',
+//     marginBottom: 2,
+//   },
+//   activeDayText: {
+//     color: '#4F46E5',
+//   },
+//   dateText: {
+//     fontSize: 12,
+//     color: 'rgba(255,255,255,0.8)',
+//   },
+//   activeDateText: {
+//     color: '#4F46E5',
+//   },
+//   mealSection: {
+//     backgroundColor: 'white',
+//     borderRadius: 20,
+//     padding: 20,
+//     marginBottom: 20,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 8 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 16,
+//     elevation: 8,
+//   },
+//   mealHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 16,
+//     paddingBottom: 12,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#F1F5F9',
+//   },
+//   mealTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#333',
+//   },
+//   mealTime: {
+//     fontSize: 14,
+//     color: '#666',
+//   },
+//   menuItem: {
+//     backgroundColor: '#F8FAFC',
+//     borderRadius: 12,
+//     padding: 16,
+//     marginBottom: 12,
+//     borderWidth: 1,
+//     borderColor: '#E2E8F0',
+//   },
+//   unavailableItem: {
+//     backgroundColor: '#F5F5F5',
+//     opacity: 0.6,
+//   },
+//   itemHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'flex-start',
+//     marginBottom: 8,
+//   },
+//   itemInfo: {
+//     flex: 1,
+//     marginRight: 16,
+//   },
+//   itemName: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#333',
+//     marginBottom: 4,
+//   },
+//   spiceLevel: {
+//     fontSize: 12,
+//     color: '#666',
+//     fontWeight: '500',
+//   },
+//   itemPrice: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#4F46E5',
+//   },
+//   itemDescription: {
+//     fontSize: 14,
+//     color: '#666',
+//     lineHeight: 18,
+//   },
+//   unavailableText: {
+//     color: '#999',
+//   },
+//   unavailableLabel: {
+//     fontSize: 12,
+//     color: '#EF4444',
+//     fontWeight: '600',
+//     marginTop: 8,
+//   },
+//   backButton: {
+//     alignSelf: 'center',
+//     paddingVertical: 12,
+//     paddingHorizontal: 24,
+//     borderRadius: 25,
+//     backgroundColor: 'rgba(255,255,255,0.15)',
+//     borderWidth: 1,
+//     borderColor: 'rgba(255,255,255,0.3)',
+//     marginTop: 20,
+//   },
+//   backButtonText: {
+//     color: 'white',
+//     fontSize: 16,
+//     fontWeight: '600',
+//     textAlign: 'center',
+//   },
+// });
+
+// // components/MessCard.tsx - New component for displaying mess information
+// import React from 'react';
+// import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+// import { Mess } from '../utils/api';
+
+// interface MessCardProps {
+//   mess: Mess;
+//   onPress: () => void;
+// }
+
+// export default function MessCard({ mess, onPress }: MessCardProps) {
+//   return (
+//     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+//       <View style={styles.header}>
+//         <Text style={styles.name}>{mess.name}</Text>
+//         <View style={styles.ratingContainer}>
+//           <Text style={styles.rating}>⭐ {mess.rating.average}</Text>
+//           <Text style={styles.reviewCount}>({mess.rating.count})</Text>
+//         </View>
+//       </View>
+      
+//       <Text style={styles.address}>{mess.address.city}, {mess.address.state}</Text>
+      
+//       {mess.description && (
+//         <Text style={styles.description} numberOfLines={2}>
+//           {mess.description}
+//         </Text>
+//       )}
+      
+//       <View style={styles.pricingContainer}>
+//         {mess.pricing.breakfast && (
+//           <Text style={styles.pricing}>Breakfast: ₹{mess.pricing.breakfast}</Text>
+//         )}
+//         {mess.pricing.lunch && (
+//           <Text style={styles.pricing}>Lunch: ₹{mess.pricing.lunch}</Text>
+//         )}
+//         {mess.pricing.dinner && (
+//           <Text style={styles.pricing}>Dinner: ₹{mess.pricing.dinner}</Text>
+//         )}
+//       </View>
+      
+//       <View style={styles.footer}>
+//         <Text style={styles.foodType}>{mess.foodType.toUpperCase()}</Text>
+//         {mess.distance && (
+//           <Text style={styles.distance}>{mess.distance.toFixed(1)} km away</Text>
+//         )}
+//       </View>
+//     </TouchableOpacity>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   card: {
+//     backgroundColor: 'white',
+//     borderRadius: 16,
+//     padding: 20,
+//     marginBottom: 16,
+//     shadowColor: '#000',
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 8,
+//     elevation: 4,
+//     borderWidth: 1,
+//     borderColor: '#E5E7EB',
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'flex-start',
+//     marginBottom: 8,
+//   },
+//   name: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#111827',
+//     flex: 1,
+//     marginRight: 10,
+//   },
+//   ratingContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+//   rating: {
+//     fontSize: 14,
+//     color: '#F59E0B',
+//     fontWeight: '600',
+//   },
+//   reviewCount: {
+//     fontSize: 12,
+//     color: '#6B7280',
+//     marginLeft: 4,
+//   },
+//   address: {
+//     fontSize: 14,
+//     color: '#6B7280',
+//     marginBottom: 8,
+//   },
+//   description: {
+//     fontSize: 14,
+//     color: '#4B5563',
+//     lineHeight: 20,
+//     marginBottom: 12,
+//   },
+//   pricingContainer: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     marginBottom: 12,
+//   },
+//   pricing: {
+//     fontSize: 14,
+//     color: '#4F46E5',
+//     fontWeight: '600',
+//     marginRight: 16,
+//     marginBottom: 4,
+//   },
+//   footer: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//   },
+//   foodType: {
+//     fontSize: 12,
+//     fontWeight: 'bold',
+//     color: '#10B981',
+//     backgroundColor: '#D1FAE5',
+//     paddingHorizontal: 8,
+//     paddingVertical: 4,
+//     borderRadius: 12,
+//   },
+//   distance: {
+//     fontSize: 12,
+//     color: '#6B7280',
+//   },
+// });
+
+// // components/OTPInput.tsx - Fixed onComplete prop
+// import { useRef } from 'react';
+// import { StyleSheet, TextInput, View } from 'react-native';
+
+// interface OTPInputProps { 
+//   otp: string[]; 
+//   setOTP: (otp: string[]) => void; 
+//   onComplete?: () => void; 
+// }
+
+// export default function OTPInput({ otp, setOTP, onComplete }: OTPInputProps) {
+//   const inputs = useRef<TextInput[]>([]);
+
+//   const handleChangeText = (text: string, index: number) => {
+//     const newOTP = [...otp];
+//     newOTP[index] = text.replace(/\D/g, '');
+//     setOTP(newOTP);
+    
+//     if (text && index < 5) {
+//       inputs.current[index + 1]?.focus();
+//     }
+    
+//     if (newOTP.join('').length === 6 && onComplete) {
+//       setTimeout(onComplete, 100);
+//     }
+//   };
+
+//   const handleKeyPress = (e: any, index: number) => {
+//     if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+//       inputs.current[index - 1]?.focus();
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       {otp.map((digit, index) => (
+//         <TextInput 
+//           key={index} 
+//           ref={(ref) => (inputs.current[index] = ref!)} 
+//           style={[styles.input, digit ? styles.inputFilled : {}]} 
+//           value={digit} 
+//           onChangeText={(t) => handleChangeText(t, index)} 
+//           onKeyPress={(e) => handleKeyPress(e, index)} 
+//           keyboardType="numeric" 
+//           maxLength={1} 
+//           textAlign="center" 
+//           selectTextOnFocus 
+//         />
+//       ))}
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { 
+//     flexDirection: 'row', 
+//     justifyContent: 'space-between', 
+//     width: '100%', 
+//     maxWidth: 300 
+//   },
+//   input: { 
+//     width: 45, 
+//     height: 55, 
+//     borderWidth: 2, 
+//     borderColor: '#E5E7EB', 
+//     borderRadius: 12, 
+//     fontSize: 20, 
+//     fontWeight: 'bold', 
+//     backgroundColor: '#F9FAFB', 
+//     color: '#111827' 
+//   },
+//   inputFilled: { 
+//     borderColor: '#4F46E5', 
+//     backgroundColor: '#EEF2FF' 
+//   },
+// });
+
+// //components/PhoneInput.tsx
+
+// import { StyleSheet, Text, TextInput, View } from 'react-native';
+
+// interface PhoneInputProps { 
+//   value: string; 
+//   onChangeText: (text: string) => void; 
+//   placeholder: string; 
+// }
+
+// export default function PhoneInput({ value, onChangeText, placeholder }: PhoneInputProps) {
+//   const handleTextChange = (text: string) => {
+//     // Only allow digits
+//     const numericText = text.replace(/[^0-9]/g, '');
+//     onChangeText(numericText);
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.inputContainer}>
+//         <View style={styles.countryCode}>
+//           <Text style={styles.flag}>🇮🇳</Text>
+//           <Text style={styles.code}>+91</Text>
+//         </View>
+//         <TextInput 
+//           style={styles.input} 
+//           placeholder={placeholder} 
+//           value={value} 
+//           onChangeText={handleTextChange} 
+//           keyboardType="phone-pad" 
+//           maxLength={10} 
+//           placeholderTextColor="#999" 
+//         />
+//       </View>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { marginBottom: 10 },
+//   inputContainer: { 
+//     flexDirection: 'row', 
+//     borderWidth: 2, 
+//     borderColor: '#E5E7EB', 
+//     borderRadius: 12, 
+//     overflow: 'hidden', 
+//     backgroundColor: '#F9FAFB' 
+//   },
+//   countryCode: { 
+//     flexDirection: 'row', 
+//     alignItems: 'center', 
+//     paddingHorizontal: 15, 
+//     backgroundColor: '#F3F4F6', 
+//     borderRightWidth: 1, 
+//     borderRightColor: '#E5E7EB' 
+//   },
+//   flag: { fontSize: 20, marginRight: 8 },
+//   code: { fontSize: 16, fontWeight: '600', color: '#374151' },
+//   input: { 
+//     flex: 1, 
+//     paddingVertical: 18, 
+//     paddingHorizontal: 15, 
+//     fontSize: 16, 
+//     color: '#111827' 
+//   },
+// });
+
+// //components/RoleCard.tsx
+
+// import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+
+// interface RoleCardProps { 
+//   icon: string; 
+//   title: string; 
+//   subtitle: string; 
+//   description: string; 
+//   onPress: () => void; 
+// }
+
+// export default function RoleCard({ icon, title, subtitle, description, onPress }: RoleCardProps) {
+//   return (
+//     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+//       <View style={styles.iconContainer}>
+//         <Text style={styles.icon}>{icon}</Text>
+//       </View>
+//       <View style={styles.content}>
+//         <Text style={styles.title}>{title}</Text>
+//         <Text style={styles.subtitle}>{subtitle}</Text>
+//         <Text style={styles.description}>{description}</Text>
+//       </View>
+//       <Text style={styles.arrow}>→</Text>
+//     </TouchableOpacity>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   card: { 
+//     backgroundColor: 'white', 
+//     borderRadius: 16, 
+//     padding: 24, 
+//     flexDirection: 'row', 
+//     alignItems: 'center', 
+//     shadowColor: '#000', 
+//     shadowOffset: { width: 0, height: 2 }, 
+//     shadowOpacity: 0.1, 
+//     shadowRadius: 8, 
+//     elevation: 4 
+//   },
+//   iconContainer: { 
+//     width: 60, 
+//     height: 60, 
+//     borderRadius: 30, 
+//     backgroundColor: '#F3F4F6', 
+//     justifyContent: 'center', 
+//     alignItems: 'center', 
+//     marginRight: 16 
+//   },
+//   icon: { fontSize: 30 },
+//   content: { flex: 1 },
+//   title: { 
+//     fontSize: 20, 
+//     fontWeight: 'bold', 
+//     color: '#111827', 
+//     marginBottom: 4 
+//   },
+//   subtitle: { 
+//     fontSize: 16, 
+//     color: '#6B7280', 
+//     marginBottom: 8 
+//   },
+//   description: { 
+//     fontSize: 14, 
+//     color: '#9CA3AF', 
+//     lineHeight: 18 
+//   },
+//   arrow: { 
+//     fontSize: 20, 
+//     color: '#4F46E5', 
+//     fontWeight: 'bold' 
+//   },
+// });
+
+// //utils/api.js
+// const baseURL = 'http://localhost:4000/api'; // Change for production
+
+// class API {
+//   static async get(endpoint, params = {}) {
+//     const url = new URL(`${baseURL}${endpoint}`);
+//     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+//     const response = await fetch(url);
+//     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//     return response.json();
+//   }
+
+//   static async post(endpoint, data) {
+//     const response = await fetch(`${baseURL}${endpoint}`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(data)
+//     });
+//     if (!response.ok) {
+//       const error = await response.json();
+//       throw new Error(error.error || `HTTP error! status: ${response.status}`);
+//     }
+//     return response.json();
+//   }
+
+//   static async patch(endpoint, data) {
+//     const response = await fetch(`${baseURL}${endpoint}`, {
+//       method: 'PATCH',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(data)
+//     });
+//     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+//     return response.json();
+//   }
+
+//   // User methods
+//   static async getUser(mobile) {
+//     return this.get(`/auth/user/${mobile.replace('+', '')}`);
+//   }
+
+//   static async updateUser(id, updates) {
+//     return this.patch(`/auth/user/${id}`, updates);
+//   }
+
+//   // Mess methods
+//   static async getMesses(params = {}) {
+//     return this.get('/messes', params);
+//   }
+
+//   static async getMess(id) {
+//     return this.get(`/messes/${id}`);
+//   }
+
+//   // Menu methods
+//   static async getMenus(messId, date) {
+//     return this.get('/menus', { messId, date });
+//   }
+
+//   // Order methods
+//   static async getOrders(params = {}) {
+//     return this.get('/orders', params);
+//   }
+
+//   static async createOrder(data) {
+//     return this.post('/orders', data);
+//   }
+
+//   static async updateOrderStatus(id, status) {
+//     return this.patch(`/orders/${id}`, { status });
+//   }
+
+//   // Subscription methods
+//   static async getUserSubscriptions(userId) {
+//     return this.get(`/users/${userId}/subscriptions`);
+//   }
+
+//   static async createSubscription(userId, data) {
+//     return this.post(`/users/${userId}/subscriptions`, data);
+//   }
+
+//   // Stats
+//   static async getOwnerStats(ownerId) {
+//     return this.get(`/stats/owner/${ownerId}`);
+//   }
+// }
+
+// export { API };
+
+// //utils/auth.tsx
+
+// import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+// import { ConfirmationResult, signInWithPhoneNumber } from 'firebase/auth';
+// import React from 'react';
+// import { auth, firebaseConfig } from '../firebase.config';
+
+// let confirmationResult: ConfirmationResult | null = null;
+
+// interface RecaptchaProps {
+//   // Add any additional props you might need
+// }
+
+// export const Recaptcha = React.forwardRef<FirebaseRecaptchaVerifierModal, RecaptchaProps>(
+//   (props, ref) => (
+//     <FirebaseRecaptchaVerifierModal
+//       ref={ref}
+//       firebaseConfig={firebaseConfig}
+//       attemptInvisibleVerification={true}
+//       // Add required props
+//       title="Verify your phone number"
+//       cancelLabel="Cancel"
+//     />
+//   )
+// );
+
+// Recaptcha.displayName = 'Recaptcha';
+
+// export const sendOTP = async (
+//   phoneNumber: string,
+//   recaptchaRef: React.RefObject<FirebaseRecaptchaVerifierModal>
+// ): Promise<void> => {
+//   try {
+//     if (!recaptchaRef.current) {
+//       throw new Error('reCAPTCHA not ready');
+//     }
+    
+//     confirmationResult = await signInWithPhoneNumber(
+//       auth, 
+//       phoneNumber, 
+//       recaptchaRef.current
+//     );
+//   } catch (error) {
+//     console.error('Error sending OTP:', error);
+//     throw error;
+//   }
+// };
+
+// export const verifyOTP = async (otp: string): Promise<void> => {
+//   try {
+//     if (!confirmationResult) {
+//       throw new Error('No OTP request found. Please request OTP again.');
+//     }
+    
+//     const result = await confirmationResult.confirm(otp);
+//     result; //return
+//   } catch (error) {
+//     console.error('Error verifying OTP:', error);
+//     throw error;
+//   }
+// };
+
+// export const signOutUser = async (): Promise<void> => {
+//   try {
+//     await auth.signOut();
+//     confirmationResult = null;
+//   } catch (error) {
+//     console.error('Error signing out:', error);
+//     throw error;
+//   }
+// };
+
+// // utils/storage.js - Full AsyncStorage implementation
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// export const saveUserData = async (user) => {
+//   try {
+//     await AsyncStorage.setItem('userData', JSON.stringify(user));
+//   } catch (error) {
+//     console.error('Error saving user data:', error);
+//   }
+// };
+
+// export const getUserData = async () => {
+//   try {
+//     const data = await AsyncStorage.getItem('userData');
+//     return data ? JSON.parse(data) : null;
+//   } catch (error) {
+//     console.error('Error getting user data:', error);
+//     return null;
+//   }
+// };
+
+// export const saveToken = async (token) => {
+//   try {
+//     await AsyncStorage.setItem('authToken', token);
+//   } catch (error) {
+//     console.error('Error saving token:', error);
+//   }
+// };
+
+// export const getToken = async () => {
+//   try {
+//     return await AsyncStorage.getItem('authToken');
+//   } catch (error) {
+//     console.error('Error getting token:', error);
+//     return null;
+//   }
+// };
+
+// export const saveRole = async (role) => {
+//   try {
+//     await AsyncStorage.setItem('role', role);
+//   } catch (error) {
+//     console.error('Error saving role:', error);
+//   }
+// };
+
+// export const getRole = async () => {
+//   try {
+//     return await AsyncStorage.getItem('role');
+//   } catch (error) {
+//     console.error('Error getting role:', error);
+//     return null;
+//   }
+// };
+
+// export const clearAllData = async () => {
+//   try {
+//     await AsyncStorage.multiRemove(['userData', 'authToken', 'role']);
+//   } catch (error) {
+//     console.error('Error clearing data:', error);
+//   }
+// };
+
+// //firebase.config.s
+
+// // Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// // TODO: Add SDKs for Firebase products that you want to use
+// // https://firebase.google.com/docs/web/setup#available-libraries
+
+// // Your web app's Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD0yfd1qWmNhDT-PdMnKPF4Su_GBDR4-_0",
+//   authDomain: "p2--cc.firebaseapp.com",
+//   projectId: "p2--cc",
+//   storageBucket: "p2--cc.firebasestorage.app",
+//   messagingSenderId: "952249619556",
+//   appId: "1:952249619556:web:55dfafb29b94a984e2bb71"
+// };
+
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// export const auth = getAuth();
+// export { firebaseConfig };

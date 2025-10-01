@@ -1,4 +1,4 @@
-// models/User.js - Updated to match schema + password
+// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -7,56 +7,74 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    maxlength: 100
+    maxlength: 100,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
   },
   mobile: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
     required: true,
-    minlength: 6
+    minlength: 6,
   },
   userRoles: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserRole'
+    ref: 'UserRole',
   }],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  isLocked: {
+    type: Boolean,
+    default: false,
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isMobileVerified: {
+    type: Boolean,
+    default: false,
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   modifiedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   modifiedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 }, {
-  timestamps: true
+  timestamps: true,
 });
 
-userSchema.pre('save', async function(next) {
+// Hash password before saving
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-userSchema.methods.comparePassword = async function(candidatePassword) {
+// Compare password method
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 

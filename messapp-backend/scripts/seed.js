@@ -1,4 +1,4 @@
-//messapp-abackend/scripts/seed.js
+// scripts/seed.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
@@ -15,7 +15,7 @@ dotenv.config();
 const seedData = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 
     // Clear existing data
     await Promise.all([
@@ -25,43 +25,52 @@ const seedData = async () => {
       Mess.deleteMany({}),
       MessMenu.deleteMany({}),
       Plan.deleteMany({}),
-      MessUsers.deleteMany({})
+      MessUsers.deleteMany({}),
     ]);
 
     // Seed roles
     const roles = await Role.insertMany([
       { roleName: 'Mess Owner' },
-      { roleName: 'Mess User' }
+      { roleName: 'Mess User' },
     ]);
 
-    // Seed users with hashed password
+    // Seed users
     const hashedPassword = await bcrypt.hash('password123', 12);
     const users = await User.insertMany([
       {
         username: 'johnconsumer',
         email: 'john@example.com',
         mobile: '+919876543210',
-        password: hashedPassword
+        password: hashedPassword,
+        isActive: true,
+        isLocked: false,
+        isEmailVerified: true,
+        isMobileVerified: true,
       },
       {
         username: 'sarahowner',
         email: 'sarah@example.com',
         mobile: '+919876543211',
-        password: hashedPassword
-      }
+        password: hashedPassword,
+        isActive: true,
+        isLocked: false,
+        isEmailVerified: true,
+        isMobileVerified: true,
+      },
     ]);
 
     // Create UserRoles
     await UserRole.insertMany([
       { userId: users[0]._id, roleId: roles[1]._id }, // Consumer
-      { userId: users[1]._id, roleId: roles[0]._id } // Owner
+      { userId: users[1]._id, roleId: roles[0]._id }, // Owner
     ]);
 
     // Seed mess
     const mess = await Mess.create({
       messName: 'Healthy Tiffin Service',
       ownerId: users[1]._id,
-      mobile: '+919876543211'
+      mobile: '+919876543211',
+      isActive: true,
     });
 
     // Seed menu
@@ -70,7 +79,7 @@ const seedData = async () => {
       messId: mess._id,
       menuDate: today,
       mealType: 'Lunch',
-      itemName: 'Dal Rice'
+      itemName: 'Dal Rice',
     });
 
     // Seed plan
@@ -78,7 +87,7 @@ const seedData = async () => {
       messId: mess._id,
       planName: 'Monthly Plan',
       durationDays: 30,
-      status: 'Active'
+      status: 'Active',
     });
 
     // Seed MessUsers (subscription)
@@ -88,14 +97,15 @@ const seedData = async () => {
       planId: plan._id,
       startDate: today,
       endDate: new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000),
-      status: 'Active'
+      status: 'Active',
     });
 
-    console.log('✅ Database seeded with sample data matching Excel schema!');
+    console.log('✅ Database seeded successfully!');
   } catch (error) {
     console.error('❌ Seeding error:', error);
   } finally {
-    mongoose.disconnect();
+    await mongoose.disconnect();
+    console.log('📴 MongoDB disconnected');
   }
 };
 

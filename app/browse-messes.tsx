@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { API, Mess } from '../utils/api';
 import MessCard from '../components/MessCard';
 
@@ -22,10 +22,15 @@ export default function BrowseMessesScreen() {
 
   const loadMesses = async () => {
     try {
-      const messesData = await API.getMesses();
-      setMesses(messesData);
-    } catch (error) {
-      console.error('Error loading messes:', error);
+      const response = await API.getMesses();
+      if (response.success) {
+        setMesses(response.data);
+      } else {
+        throw new Error(response.error || 'Failed to fetch messes');
+      }
+    } catch (error: any) {
+      console.error('Error loading messes:', error.message);
+      Alert.alert('Error', error.message || 'Failed to load messes');
     } finally {
       setLoading(false);
     }
@@ -40,7 +45,6 @@ export default function BrowseMessesScreen() {
   const filterMesses = () => {
     let filtered = messes;
 
-    // Filter by search query
     if (searchQuery.trim()) {
       filtered = filtered.filter(mess =>
         mess.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,7 +52,6 @@ export default function BrowseMessesScreen() {
       );
     }
 
-    // Filter by food type
     if (selectedFilter !== 'all') {
       filtered = filtered.filter(mess => mess.foodType === selectedFilter);
     }
@@ -57,7 +60,7 @@ export default function BrowseMessesScreen() {
   };
 
   const handleMessPress = (mess: Mess) => {
-    router.push({ pathname: './mess-details', params: { messId: mess._id } });
+    router.push({ pathname: '../messDetails', params: { messId: mess._id } });
   };
 
   if (loading) {
@@ -65,7 +68,7 @@ export default function BrowseMessesScreen() {
       <SafeAreaView style={styles.container}>
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color="white" />
-          <Text style={{ color: 'white', marginTop: 20 }}>Loading messes...</Text>
+          <Text style={styles.loadingText}>Loading messes...</Text>
         </View>
       </SafeAreaView>
     );
@@ -88,6 +91,7 @@ export default function BrowseMessesScreen() {
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor="#666"
+            autoCapitalize="none"
           />
         </View>
 
@@ -96,16 +100,10 @@ export default function BrowseMessesScreen() {
             {['all', 'veg', 'non-veg', 'both'].map((filter) => (
               <TouchableOpacity
                 key={filter}
-                style={[
-                  styles.filterChip,
-                  selectedFilter === filter && styles.activeFilterChip
-                ]}
+                style={[styles.filterChip, selectedFilter === filter && styles.activeFilterChip]}
                 onPress={() => setSelectedFilter(filter as any)}
               >
-                <Text style={[
-                  styles.filterText,
-                  selectedFilter === filter && styles.activeFilterText
-                ]}>
+                <Text style={[styles.filterText, selectedFilter === filter && styles.activeFilterText]}>
                   {filter === 'all' ? 'All' : filter === 'non-veg' ? 'Non-Veg' : filter.charAt(0).toUpperCase() + filter.slice(1)}
                 </Text>
               </TouchableOpacity>
@@ -116,28 +114,18 @@ export default function BrowseMessesScreen() {
         <ScrollView
           style={styles.messesContainer}
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         >
-          <Text style={styles.resultsText}>
-            {filteredMesses.length} messes found
-          </Text>
+          <Text style={styles.resultsText}>{filteredMesses.length} messes found</Text>
 
           {filteredMesses.map((mess) => (
-            <MessCard
-              key={mess._id}
-              mess={mess}
-              onPress={() => handleMessPress(mess)}
-            />
+            <MessCard key={mess._id} mess={mess} onPress={() => handleMessPress(mess)} />
           ))}
 
           {filteredMesses.length === 0 && (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateText}>No messes found</Text>
-              <Text style={styles.emptyStateSubtext}>
-                Try adjusting your search or filters
-              </Text>
+              <Text style={styles.emptyStateSubtext}>Try adjusting your search or filters</Text>
             </View>
           )}
         </ScrollView>
@@ -154,7 +142,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
@@ -243,5 +230,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9CA3AF',
     textAlign: 'center',
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 20,
+    fontSize: 16,
   },
 });

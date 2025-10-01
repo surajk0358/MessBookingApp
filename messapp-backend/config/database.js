@@ -1,4 +1,4 @@
-//- Database Configuration
+// config/database.js
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
@@ -9,8 +9,7 @@ const connectDB = async () => {
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    
-    // Handle connection events
+
     mongoose.connection.on('disconnected', () => {
       console.log('📴 MongoDB disconnected');
     });
@@ -24,7 +23,6 @@ const connectDB = async () => {
       console.log('📴 MongoDB connection closed due to application termination');
       process.exit(0);
     });
-
   } catch (error) {
     console.error('❌ Database connection failed:', error);
     process.exit(1);

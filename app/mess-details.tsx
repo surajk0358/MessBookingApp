@@ -87,7 +87,7 @@ export default function ViewMenusScreen() {
           onPress: () => {
             // Navigate to order placement or handle order logic
             router.push({
-              pathname: '/place-order',
+              pathname: './place-order',
               params: {
                 messId,
                 menuId: menu._id,

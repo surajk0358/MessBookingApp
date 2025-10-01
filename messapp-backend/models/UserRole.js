@@ -5,31 +5,32 @@ const userRoleSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   roleId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role',
-    required: true
+    required: true,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   modifiedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
   modifiedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
+// Ensure unique user-role pairs
 userRoleSchema.index({ userId: 1, roleId: 1 }, { unique: true });
 
 module.exports = mongoose.model('UserRole', userRoleSchema);
